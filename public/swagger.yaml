@@ -1,3184 +1,2077 @@
+openapi: 3.0.0
 info:
-  title: COMURT V2
+  title: COMURT
   description: ''
-  version: 1.0.0
-tags:
-  - name: Authentication
-  - name: Users
-  - name: Customers
-  - name: Appointments
-  - name: Anamneses
-  - name: Tasks
-  - name: Webhook
-  - name: Plans
-  - name: Subscriptions
-  - name: System
-  - name: Support
+  version: v2
+servers:
+  -
+    url: 'https://comurt-api-v2-dev.bzoyky.easypanel.host'
+    description: 'Servidor online'
+  -
+    url: 'http://localhost:8000'
+    description: 'Servidor local'
 paths:
-  /api/v1/login:
-    post:
-      summary: login
-      deprecated: false
-      description: >-
-        Renovação de sessão:
-
-        Se o tempo restante for menor que 600 segundos, o token é renovado
-        retornando o header X-Renewed-Token
-      tags:
-        - Authentication
-      parameters:
-        - name: body
-          in: body
-          schema:
-            type: object
-            properties:
-              email:
-                type: string
-                format: email
-              password:
-                type: string
-                format: pass
-            required:
-              - email
-              - password
-      responses:
-        '200':
-          description: ''
-          headers: {}
-          schema:
-            type: object
-            properties:
-              token:
-                type: string
-            required:
-              - token
-        '400':
-          description: ''
-          headers: {}
-          schema:
-            type: object
-            properties:
-              status:
-                type: integer
-              error:
-                type: integer
-              messages:
-                type: object
-                properties:
-                  email:
-                    type: string
-                  passwor:
-                    type: string
-                required:
-                  - email
-                  - passwor
-            required:
-              - status
-              - error
-              - messages
-      security: []
-      consumes:
-        - application/json
-      produces:
-        - application/json
-  /api/v1/magiclink:
-    post:
-      summary: Magic Link
-      deprecated: false
-      description: Limite de 5 requisições por hora nessa rota
-      tags:
-        - Authentication
-      parameters:
-        - name: body
-          in: body
-          schema:
-            type: object
-            properties:
-              magiclink:
-                type: string
-            required:
-              - magiclink
-      responses:
-        '200':
-          description: ''
-          headers: {}
-          schema:
-            type: object
-            properties:
-              token:
-                type: string
-            required:
-              - token
-        '404':
-          description: ''
-          headers: {}
-          schema:
-            type: object
-            properties:
-              status:
-                type: integer
-              error:
-                type: integer
-              messages:
-                type: object
-                properties:
-                  error:
-                    type: string
-                required:
-                  - error
-            required:
-              - status
-              - error
-              - messages
-      security: []
-      consumes:
-        - application/json
-      produces:
-        - application/json
-  /api/v1/recover:
-    post:
-      summary: recover
-      deprecated: false
-      description: ''
-      tags:
-        - Authentication
-      parameters:
-        - name: body
-          in: body
-          schema:
-            type: object
-            properties:
-              email:
-                type: string
-                format: email
-            required:
-              - email
-      responses:
-        '200':
-          description: ''
-          headers: {}
-          schema:
-            type: object
-            properties:
-              message:
-                type: string
-              data:
-                type: object
-                properties:
-                  name:
-                    type: string
-                  email:
-                    type: string
-                  token:
-                    type: string
-                  magicLink:
-                    type: string
-                  baseUrl:
-                    type: string
-                  company:
-                    type: string
-                required:
-                  - name
-                  - email
-                  - token
-                  - magicLink
-                  - baseUrl
-                  - company
-            required:
-              - message
-              - data
-        '400':
-          description: ''
-          headers: {}
-          schema:
-            type: object
-            properties:
-              status:
-                type: integer
-              error:
-                type: integer
-              messages:
-                type: object
-                properties:
-                  email:
-                    type: string
-                required:
-                  - email
-            required:
-              - status
-              - error
-              - messages
-      security: []
-      consumes:
-        - application/json
-      produces:
-        - application/json
-    put:
-      summary: Update password
-      deprecated: false
-      description: >-
-        Após a atualização ou criação de uma nova senha, o token de acesso é
-        automaticamente renovado.
-
-
-        As regras e validações sobre a complexidade e o tamanho da senha devem
-        ser implementadas no frontend, pois o backend aceita senhas de qualquer
-        tamanho ou nível de dificuldade.
-
-
-        Nenhuma senha é armazenada de forma descriptografada no banco de dados.
-        Não é possível verificar ou recuperar senhas anteriores, pois apenas um
-        hash seguro da senha é salvo. Esse hash é irreversível e não pode ser
-        convertido de volta para a senha original.
-      tags:
-        - Authentication
-      parameters:
-        - name: body
-          in: body
-          schema:
-            type: object
-            properties:
-              password:
-                type: string
-                format: password
-              token:
-                type: string
-            required:
-              - password
-              - token
-      responses:
-        '200':
-          description: ''
-          headers: {}
-          schema:
-            type: object
-            properties:
-              message:
-                type: string
-            required:
-              - message
-        '400':
-          description: ''
-          headers: {}
-          schema:
-            type: object
-            properties:
-              status:
-                type: integer
-              error:
-                type: integer
-              messages:
-                type: object
-                properties:
-                  error:
-                    type: string
-                required:
-                  - error
-            required:
-              - status
-              - error
-              - messages
-      security: []
-      consumes:
-        - application/json
-      produces:
-        - application/json
-  /api/v1/logout:
+  '/api/v1/anamneses/{id}':
     get:
-      summary: logout
-      deprecated: false
-      description: ''
       tags:
-        - Authentication
-      parameters: []
+        - Anamneses
+      summary: 'Obter detalhes de uma anamnese'
+      description: 'Retorna os detalhes de uma anamnese específica'
+      operationId: 5e5bf56100b7ce399455f92ed6a031c9
+      parameters:
+        -
+          name: id
+          in: path
+          description: 'ID da anamnese'
+          required: true
+          schema:
+            type: integer
       responses:
         '200':
-          description: ''
-          headers: {}
-          schema:
-            type: object
-            properties:
-              message:
-                type: string
-            required:
-              - message
+          description: 'Detalhes da Anamnese'
+          content:
+            application/json:
+              schema:
+                type: object
         '401':
-          description: ''
-          headers: {}
-          schema:
-            type: object
-            properties:
-              status:
-                type: integer
-              error:
-                type: integer
-              messages:
-                type: object
-                properties:
-                  error:
-                    type: string
-                required:
-                  - error
-            required:
-              - status
-              - error
-              - messages
+          description: 'Token inválido ou ausente'
+        '404':
+          description: 'Anamnese não encontrada'
+        '500':
+          description: 'Erro interno do servidor'
       security:
-        - bearer: []
-      produces:
-        - application/json
-  /:
-    get:
-      summary: GET User
-      deprecated: false
-      description: ''
-      tags:
-        - Support
-      parameters: []
-      responses:
-        '200':
-          description: ''
-          headers: {}
-          schema:
-            type: object
-            properties: {}
-      security: []
-      produces:
-        - application/json
-  /api/v1/user/me:
-    get:
-      summary: Me
-      deprecated: false
-      description: Dados de perfil
-      tags:
-        - Users
-      parameters: []
-      responses:
-        '200':
-          description: ''
-          headers: {}
-          schema:
-            type: object
-            properties:
-              id:
-                type: string
-              name:
-                type: string
-              email:
-                type: string
-              photo:
-                type: string
-              role:
-                type: string
-              plan:
-                type: string
-              lang:
-                type: string
-              languages:
-                type: string
-              description:
-                type: string
-              education:
-                type: string
-              department:
-                type: string
-              social_networks:
-                type: string
-              company:
-                type: string
-              birthdate:
-                type: string
-              show_personal_chart_dashboard:
-                type: string
-              show_family_chart_dashboard:
-                type: string
-              show_friends_chart_dashboard:
-                type: string
-              show_appointments_chart_dashboard:
-                type: string
-              show_basic_info_dashboard:
-                type: string
-              receive_updates_email:
-                type: string
-              receive_updates_sms:
-                type: string
-              receive_updates_whatsapp:
-                type: string
-              receive_scheduling_reminders:
-                type: string
-              receive_cancellation_reminders:
-                type: string
-              statistics:
-                type: object
-                properties:
-                  appointments:
-                    type: string
-                  anamneses:
-                    type: string
-                  cancelled:
-                    type: 'null'
-                  appointments_period_comparison:
-                    type: integer
-                  anamneses_period_comparison:
-                    type: integer
-                  cancelled_period_comparison:
-                    type: integer
-                required:
-                  - appointments
-                  - anamneses
-                  - cancelled
-                  - appointments_period_comparison
-                  - anamneses_period_comparison
-                  - cancelled_period_comparison
-            required:
-              - id
-              - name
-              - email
-              - photo
-              - role
-              - plan
-              - lang
-              - languages
-              - description
-              - education
-              - department
-              - social_networks
-              - company
-              - birthdate
-              - show_personal_chart_dashboard
-              - show_family_chart_dashboard
-              - show_friends_chart_dashboard
-              - show_appointments_chart_dashboard
-              - show_basic_info_dashboard
-              - receive_updates_email
-              - receive_updates_sms
-              - receive_updates_whatsapp
-              - receive_scheduling_reminders
-              - receive_cancellation_reminders
-              - statistics
-      security:
-        - bearer: []
-      produces:
-        - application/json
+        -
+          bearerAuth: []
     put:
-      summary: Update
-      deprecated: false
-      description: >-
-        O id utilizado para atualizar os dados, é o id de usuário retornado na
-        sessão criada
       tags:
-        - Users
+        - Anamneses
+      summary: 'Edite uma Anamnese'
+      description: 'Edite anamnese com base no ID fornecido na url.'
+      operationId: 6750d05c3d1db3655160808c8e2137a3
       parameters:
-        - name: body
-          in: body
-          schema:
-            type: object
-            properties:
-              name:
-                type: string
-              photo:
-                type: string
-              phone:
-                type: string
-              lang:
-                type: string
-              languages:
-                type: string
-              description:
-                type: string
-              education:
-                type: string
-              department:
-                type: string
-              social_networks:
-                type: string
-              company:
-                type: string
-              birthdate:
-                type: string
-              show_personal_chart_dashboard:
-                type: string
-              show_family_chart_dashboard:
-                type: string
-              show_friends_chart_dashboard:
-                type: string
-              show_appointments_chart_dashboard:
-                type: string
-              show_basic_info_dashboard:
-                type: string
-              receive_updates_email:
-                type: string
-              receive_updates_sms:
-                type: string
-              receive_updates_whatsapp:
-                type: string
-              receive_scheduling_reminders:
-                type: string
-              receive_cancellation_reminders:
-                type: string
-            required:
-              - name
-              - photo
-              - phone
-              - lang
-              - languages
-              - description
-              - education
-              - department
-              - social_networks
-              - company
-              - birthdate
-              - show_personal_chart_dashboard
-              - show_family_chart_dashboard
-              - show_friends_chart_dashboard
-              - show_appointments_chart_dashboard
-              - show_basic_info_dashboard
-              - receive_updates_email
-              - receive_updates_sms
-              - receive_updates_whatsapp
-              - receive_scheduling_reminders
-              - receive_cancellation_reminders
-      responses:
-        '200':
-          description: ''
-          headers: {}
-          schema:
-            type: object
-            properties:
-              id:
-                type: string
-              message:
-                type: string
-            required:
-              - id
-              - message
-      security:
-        - bearer: []
-      consumes:
-        - application/json
-      produces:
-        - application/json
-  /api/v1/dashboard/appointments:
-    get:
-      summary: statistics
-      deprecated: false
-      description: ''
-      tags:
-        - Users
-      parameters:
-        - name: type
-          in: query
-          description: >-
-            annual, monthly, weekly, daily, compareWithLastWeek.
-            compareWithLastWeek não respeita data start e end
+        -
+          name: id
+          in: path
+          description: 'ID da anamnese'
           required: true
-          type: string
-          x-example: monthly
-        - name: start
-          in: query
-          description: Obrigatório para todos os tipos
-          required: true
-          type: string
-          x-example: '2024-02-25'
-        - name: end
-          in: query
-          description: Obrigatório para todos os tipos
-          required: true
-          type: string
-          x-example: '2024-09-26'
-      responses:
-        '200':
-          description: ''
-          headers: {}
           schema:
-            type: array
-            items:
-              type: object
+            type: integer
+      requestBody:
+        description: 'Dados necessários para criar uma anamnese.'
+        required: true
+        content:
+          application/json:
+            schema:
               properties:
-                date:
+                mentalDesequilibrio:
+                  description: 'Desequilíbrio mental'
                   type: string
-                appointments:
+                  enum: [sim, não]
+                mentalPercentual:
+                  description: 'Percentual de desequilíbrio mental'
                   type: integer
-                cancelled:
+                  maximum: 100
+                  minimum: 0
+                emocionalDesequilibrio:
+                  description: 'Desequilíbrio emocional'
+                  type: string
+                  enum: [sim, não]
+                emocionalPercentual:
+                  description: 'Percentual de desequilíbrio emocional'
                   type: integer
-                anamneses:
+                  maximum: 100
+                  minimum: 0
+                espiritualDesequilibrio:
+                  description: 'Desequilíbrio espiritual'
+                  type: string
+                  enum: [sim, não]
+                espiritualPercentual:
+                  description: 'Percentual de desequilíbrio espiritual'
                   type: integer
-                return:
+                  maximum: 100
+                  minimum: 0
+                fisicoDesequilibrio:
+                  description: 'Desequilíbrio físico'
+                  type: string
+                  enum: [sim, não]
+                fisicoPercentual:
+                  description: 'Percentual de desequilíbrio físico'
                   type: integer
-              required:
-                - date
-                - appointments
-                - cancelled
-                - anamneses
-                - return
-      security:
-        - bearer: []
-      produces:
-        - application/json
-  /api/v1/customers:
-    post:
-      summary: Create
-      deprecated: false
-      description: ''
-      tags:
-        - Customers
-      parameters:
-        - name: body
-          in: body
-          schema:
-            type: object
-            properties:
-              name:
-                type: string
-              email:
-                type: string
-                format: email
-              phone:
-                type: number
-                examples:
-                  - 5511912345678
-              photo:
-                type: string
-                x-nullable: true
-              birthDate:
-                type: string
-                format: date
-                examples:
-                  - '2000-01-01'
-              doc:
-                type: string
-              generous:
-                type: string
-                enum:
-                  - male
-                  - female
-                  - unspecified
-                  - non-binary
-                  - gender fluid
-                  - agender
-                  - other
-              type:
-                type: string
-                enum:
-                  - family
-                  - friend
-                  - professional
-            required:
-              - name
-              - phone
-              - birthDate
-              - doc
-              - generous
-              - type
-              - email
-              - photo
+                  maximum: 100
+                  minimum: 0
+                chakraCoronarioDesequilibrio:
+                  description: 'Desequilíbrio do chakra coronário'
+                  type: string
+                  enum: [sim, não]
+                chakraCoronarioPercentual:
+                  description: 'Percentual de desequilíbrio do chakra coronário'
+                  type: integer
+                  maximum: 100
+                  minimum: 0
+                chakraCoronarioAtividade:
+                  description: 'Atividade do chakra coronário'
+                  type: string
+                  enum: [HIPO, HIPER]
+                chakraCoronarioOrgao:
+                  description: 'Órgão afetado pelo chakra coronário'
+                  type: string
+                  enum: [sim, não]
+                chakraFrontalDesequilibrio:
+                  description: 'Desequilíbrio do chakra frontal'
+                  type: string
+                  enum: [sim, não]
+                chakraFrontalPercentual:
+                  description: 'Percentual de desequilíbrio do chakra frontal'
+                  type: integer
+                  maximum: 100
+                  minimum: 0
+                chakraFrontalAtividade:
+                  description: 'Atividade do chakra frontal'
+                  type: string
+                  enum: [HIPO, HIPER]
+                chakraFrontalOrgao:
+                  description: 'Órgão afetado pelo chakra frontal'
+                  type: string
+                  enum: [sim, não]
+                chakraLaringeoDesequilibrio:
+                  description: 'Desequilíbrio do chakra laríngeo'
+                  type: string
+                  enum: [sim, não]
+                chakraLaringeoPercentual:
+                  description: 'Percentual de desequilíbrio do chakra laríngeo'
+                  type: integer
+                  maximum: 100
+                  minimum: 0
+                chakraLaringeoAtividade:
+                  description: 'Atividade do chakra laríngeo'
+                  type: string
+                  enum: [HIPO, HIPER]
+                chakraLaringeoOrgao:
+                  description: 'Órgão afetado pelo chakra laríngeo'
+                  type: string
+                  enum: [sim, não]
+                chakraCardiacoDesequilibrio:
+                  description: 'Desequilíbrio do chakra cardíaco'
+                  type: string
+                  enum: [sim, não]
+                chakraCardiacoPercentual:
+                  description: 'Percentual de desequilíbrio do chakra cardíaco'
+                  type: integer
+                  maximum: 100
+                  minimum: 0
+                chakraCardiacoAtividade:
+                  description: 'Atividade do chakra cardíaco'
+                  type: string
+                  enum: [HIPO, HIPER]
+                chakraCardiacoOrgao:
+                  description: 'Órgão afetado pelo chakra cardíaco'
+                  type: string
+                  enum: [sim, não]
+                chakraPlexoSolarDesequilibrio:
+                  description: 'Desequilíbrio do chakra plexo solar'
+                  type: string
+                  enum: [sim, não]
+                chakraPlexoSolarPercentual:
+                  description: 'Percentual de desequilíbrio do chakra plexo solar'
+                  type: integer
+                  maximum: 100
+                  minimum: 0
+                chakraPlexoSolarAtividade:
+                  description: 'Atividade do chakra plexo solar'
+                  type: string
+                  enum: [HIPO, HIPER]
+                chakraPlexoSolarOrgao:
+                  description: 'Órgão afetado pelo chakra plexo solar'
+                  type: string
+                  enum: [sim, não]
+                chakraSacroDesequilibrio:
+                  description: 'Desequilíbrio do chakra sacro'
+                  type: string
+                  enum: [sim, não]
+                chakraSacroPercentual:
+                  description: 'Percentual de desequilíbrio do chakra sacro'
+                  type: integer
+                  maximum: 100
+                  minimum: 0
+                chakraSacroAtividade:
+                  description: 'Atividade do chakra sacro'
+                  type: string
+                  enum: [HIPO, HIPER]
+                chakraSacroOrgao:
+                  description: 'Órgão afetado pelo chakra sacro'
+                  type: string
+                  enum: [sim, não]
+                chakraBasicoDesequilibrio:
+                  description: 'Desequilíbrio do chakra básico'
+                  type: string
+                  enum: [sim, não]
+                chakraBasicoPercentual:
+                  description: 'Percentual de desequilíbrio do chakra básico'
+                  type: integer
+                  maximum: 100
+                  minimum: 0
+                chakraBasicoAtividade:
+                  description: 'Atividade do chakra básico'
+                  type: string
+                  enum: [HIPO, HIPER]
+                chakraBasicoOrgao:
+                  description: 'Órgão afetado pelo chakra básico'
+                  type: string
+                  enum: [sim, não]
+                tamanhoAura:
+                  description: 'Tamanho da aura'
+                  type: integer
+                  minimum: 0
+                tamanhoAbertura:
+                  description: 'Tamanho da abertura'
+                  type: integer
+                  minimum: 0
+                corFalta:
+                  description: 'Cores em falta'
+                  type: array
+                  items: { type: string }
+                corExcesso:
+                  description: 'Cores em excesso'
+                  type: array
+                  items: { type: string }
+                energia:
+                  description: 'Nível de energia'
+                  type: integer
+                  minimum: 0
+                areasFamiliar:
+                  description: 'Área familiar'
+                  type: string
+                  enum: [pessimo, 'muito mal', mal, regular, bom, 'muito bom', excelente]
+                areasAfetivo:
+                  description: 'Área afetiva'
+                  type: string
+                  enum: [pessimo, 'muito mal', mal, regular, bom, 'muito bom', excelente]
+                areasProfissional:
+                  description: 'Área profissional'
+                  type: string
+                  enum: [pessimo, 'muito mal', mal, regular, bom, 'muito bom', excelente]
+                areasFinanceiro:
+                  description: 'Área financeira'
+                  type: string
+                  enum: [pessimo, 'muito mal', mal, regular, bom, 'muito bom', excelente]
+                areasMissao:
+                  description: 'Área de missão'
+                  type: string
+                  enum: [pessimo, 'muito mal', mal, regular, bom, 'muito bom', excelente]
+              type: object
       responses:
         '201':
-          description: ''
-          headers: {}
-          schema:
-            type: object
-            properties:
-              id:
-                type: integer
-              message:
-                type: string
-            required:
-              - id
-              - message
+          description: 'Anamnese criada com sucesso'
+          content:
+            application/json:
+              schema:
+                properties:
+                  message: { description: 'Mensagem de sucesso', type: string }
+                type: object
         '400':
-          description: ''
-          headers: {}
-          schema:
-            type: object
-            properties:
-              status:
-                type: integer
-              error:
-                type: integer
-              messages:
-                type: object
-                properties:
-                  error:
-                    type: string
-                required:
-                  - error
-            required:
-              - status
-              - error
-              - messages
-        '409':
-          description: ''
-          headers: {}
-          schema:
-            type: object
-            properties:
-              status:
-                type: integer
-              error:
-                type: integer
-              messages:
-                type: object
-                properties:
-                  error:
-                    type: string
-                required:
-                  - error
-            required:
-              - status
-              - error
-              - messages
+          description: 'Requisição inválida'
+        '422':
+          description: 'Erros de validação'
+        '500':
+          description: 'Erro interno do servidor'
       security:
-        - bearer: []
-      consumes:
-        - application/json
-      produces:
-        - application/json
-  /api/v1/customers/2:
-    put:
-      summary: Update
-      deprecated: false
-      description: ''
-      tags:
-        - Customers
-      parameters:
-        - name: body
-          in: body
-          schema:
-            type: object
-            properties:
-              name:
-                type: string
-              email:
-                type: string
-              phone:
-                type: string
-              photo:
-                type: 'null'
-              birthDate:
-                type: string
-              doc:
-                type: string
-              generous:
-                type: string
-              type:
-                type: string
-            required:
-              - name
-              - email
-              - phone
-              - photo
-              - birthDate
-              - doc
-              - generous
-              - type
-      responses:
-        '200':
-          description: ''
-          headers: {}
-          schema:
-            type: object
-            properties:
-              id:
-                type: string
-              message:
-                type: string
-            required:
-              - id
-              - message
-      security:
-        - bearer: []
-      consumes:
-        - application/json
-      produces:
-        - application/json
+        -
+          bearerAuth: []
     delete:
-      summary: Delete
-      deprecated: false
-      description: ''
       tags:
-        - Customers
-      parameters: []
-      responses:
-        '200':
-          description: ''
-          headers: {}
-          schema:
-            type: object
-            properties: {}
-      security:
-        - bearer: []
-      produces:
-        - application/json
-  /api/v1/customers/:
-    get:
-      summary: Search
-      deprecated: false
-      description: ''
-      tags:
-        - Customers
+        - Anamneses
+      summary: 'Excluir uma anamnese'
+      description: 'Exclui uma anamnese existente'
+      operationId: f4ce47a53066d02bf807af45f0e81b77
       parameters:
-        - name: s
-          in: query
-          description: id, name, email, phone, doc
+        -
+          name: id
+          in: path
+          description: 'ID do cliente'
           required: true
-          type: string
-          x-example: ''
-        - name: sort_by
-          in: query
-          description: id, name, email, phone, doc, type
-          required: true
-          type: string
-          x-example: id
-        - name: order
-          in: query
-          description: ASC, DESC
-          required: true
-          enum:
-            - ASC
-            - DESC
-          type: string
-          x-example: DESC
-        - name: limite
-          in: query
-          description: '500'
-          required: true
-          type: integer
-          x-example: 500
-        - name: page
-          in: query
-          description: '1'
-          required: true
-          type: integer
-          x-example: 0
-        - name: generous
-          in: query
-          description: male, female, unspecified, non-binary, gender fluid, agender, other
-          required: true
-          enum:
-            - male
-            - female
-            - unspecified
-            - non-binary
-            - gender fluid
-            - agender
-            - other
-          type: string
-          x-example: male
-        - name: type
-          in: query
-          description: family, friend, professional
-          required: true
-          enum:
-            - family
-            - friend
-            - ' professional'
-          type: string
-          x-example: ''
-        - name: body
-          in: body
           schema:
-            type: object
-            properties: {}
+            type: integer
       responses:
         '200':
-          description: ''
-          headers: {}
-          schema:
-            type: object
-            properties:
-              rows:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    id:
-                      type: string
-                    idUser:
-                      type: string
-                    name:
-                      type: string
-                    photo:
-                      type: 'null'
-                    email:
-                      type: string
-                    phone:
-                      type: string
-                    doc:
-                      type: string
-                      x-nullable: true
-                    generous:
-                      type: string
-                    type:
-                      type: string
-                    birthDate:
-                      type: string
-                      x-nullable: true
-                    created_at:
-                      type: string
-                    updated_at:
-                      type: string
-                    deleted_at:
-                      type: 'null'
-                    anamneses_count:
-                      type: string
-                  required:
-                    - id
-                    - idUser
-                    - name
-                    - photo
-                    - email
-                    - phone
-                    - doc
-                    - generous
-                    - type
-                    - birthDate
-                    - created_at
-                    - updated_at
-                    - deleted_at
-                    - anamneses_count
-              params:
-                type: object
-                properties:
-                  s:
-                    type: string
-                  sort_by:
-                    type: string
-                  order:
-                    type: string
-                  limite:
-                    type: string
-                  page:
-                    type: string
-                  generous:
-                    type: string
-                  type:
-                    type: string
-                required:
-                  - s
-                  - sort_by
-                  - order
-                  - limite
-                  - page
-                  - generous
-                  - type
-              pagination:
-                type: object
-                properties:
-                  current_page:
-                    type: integer
-                  total_pages:
-                    type: integer
-                  total_items:
-                    type: integer
-                  items_per_page:
-                    type: integer
-                  prev_page:
-                    type: 'null'
-                  next_page:
-                    type: 'null'
-                required:
-                  - current_page
-                  - total_pages
-                  - total_items
-                  - items_per_page
-                  - prev_page
-                  - next_page
-            required:
-              - rows
-              - params
-              - pagination
-      security:
-        - bearer: []
-      consumes:
-        - application/json
-      produces:
-        - application/json
-  /api/v1/customers/3:
-    get:
-      summary: Get ID
-      deprecated: false
-      description: ''
-      tags:
-        - Customers
-      parameters:
-        - name: body
-          in: body
-          schema:
-            type: object
-            properties: {}
-      responses:
-        '200':
-          description: ''
-          headers: {}
-          schema:
-            type: object
-            properties:
-              id:
-                type: string
-              name:
-                type: string
-              photo:
-                type: 'null'
-              email:
-                type: string
-              phone:
-                type: string
-              doc:
-                type: string
-              generous:
-                type: string
-              birthDate:
-                type: string
-              anamneses_count:
-                type: string
-              appointments:
-                type: array
-                items:
-                  type: string
-              anamneses:
-                type: array
-                items:
-                  type: string
-              timelines:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    id:
-                      type: string
-                    idUser:
-                      type: string
-                    idCustomer:
-                      type: string
-                    type:
-                      type: string
-                    description:
-                      type: string
-                    url:
-                      type: string
-                    ico:
-                      type: string
-                    observation:
-                      type: 'null'
-                    created_at:
-                      type: string
-                    updated_at:
-                      type: string
-                    deleted_at:
-                      type: 'null'
-            required:
-              - id
-              - name
-              - photo
-              - email
-              - phone
-              - doc
-              - generous
-              - birthDate
-              - anamneses_count
-              - appointments
-              - anamneses
-              - timelines
+          description: 'Cliente deletado com sucesso'
+        '401':
+          description: 'Token inválido ou ausente'
         '404':
-          description: ''
-          headers: {}
-          schema:
-            type: object
-            properties:
-              status:
-                type: integer
-              error:
-                type: integer
-              messages:
-                type: object
-                properties:
-                  error:
-                    type: string
-                required:
-                  - error
-            required:
-              - status
-              - error
-              - messages
+          description: 'Cliente não encontrado'
+        '500':
+          description: 'Erro interno do servidor'
       security:
-        - bearer: []
-      consumes:
-        - application/json
-      produces:
-        - application/json
-  /api/v1/appointments:
-    post:
-      summary: Create
-      deprecated: false
-      description: ''
-      tags:
-        - Appointments
-      parameters:
-        - name: body
-          in: body
-          schema:
-            type: object
-            properties:
-              id_customer:
-                type: integer
-              date:
-                type: string
-              type:
-                type: string
-            required:
-              - id_customer
-              - date
-              - type
-      responses:
-        '200':
-          description: ''
-          headers: {}
-          schema:
-            type: object
-            properties: {}
-      security:
-        - bearer: []
-      consumes:
-        - application/json
-      produces:
-        - application/json
+        -
+          bearerAuth: []
+  '/anamnese/{slug}':
     get:
-      summary: Search
-      deprecated: false
-      description: |-
-        **Resposta**
-
-        ``` json
-        {
-            "rows": [
-                {
-                    "id_appointment": "7",
-                    "appointment": "2024-09-14 17:30:00",
-                    "status": "pending",
-                    "id_customer": "2",
-                    "name_customer": "Demo TP",
-                    "id_user": "2",
-                    "name_user": "Demo TP"
-                }
-            ],
-            "params": {
-                "s": "",
-                "order": "ASC",
-                "sort_by": "id",
-                "limite": "10",
-                "page": "1",
-                "start": "2024-09-01 00:00:00",
-                "end": "2024-09-30 23:59:59",
-                "status": "pending" //pending, completed, cancelled
-            },
-            "dateRange": {
-                "start": "2024-09-01 00:00:00",
-                "end": "2024-09-30 23:59:59"
-            },
-            "pagination": {
-                "current_page": 1,
-                "total_pages": 1,
-                "total_items": 1,
-                "items_per_page": 10,
-                "prev_page": null,
-                "next_page": null
-            }
-        }
-
-         ```
       tags:
-        - Appointments
+        - Anamneses
+      summary: 'Consulta de anamnese sem login'
+      description: 'Consulta aberta para compartilhamento com o cliente'
+      operationId: 19f47510d07f04837b986af47c594f51
       parameters:
-        - name: s
-          in: query
-          description: 'Termos de busca: Nome, Email, Telefone, id'
-          required: false
-          type: string
-          x-example: ''
-        - name: order
-          in: query
-          description: asc ou desc
-          required: false
-          type: string
-          x-example: asc
-        - name: sort_by
-          in: query
-          description: id, date, status
-          required: false
-          type: string
-          x-example: id
-        - name: page
-          in: query
-          description: Paginate return system
-          required: false
-          type: string
-          x-example: ''
-        - name: start
-          in: query
-          description: ''
-          required: false
-          type: string
-          x-example: '2024-09-30 00:00:00'
-        - name: end
-          in: query
-          description: ''
-          required: false
-          type: string
-          x-example: '2024-09-30 23:59:59'
-        - name: status
-          in: query
-          description: pending, completed, cancelled
-          required: false
-          type: string
-          x-example: ''
-        - name: type
-          in: query
-          description: consultation, anamnesis, return
-          required: false
-          type: string
-          x-example: ''
-        - name: limit
-          in: query
-          description: ''
-          required: false
-          type: string
-          x-example: '10'
-        - name: body
-          in: body
+        -
+          name: slug
+          in: path
+          description: 'Slug da anamnese'
+          required: true
           schema:
-            type: object
-            properties: {}
+            type: string
       responses:
         '200':
-          description: ''
-          headers: {}
-          schema:
-            type: object
-            properties: {}
-      security:
-        - bearer: []
-      consumes:
-        - application/json
-      produces:
-        - application/json
-  /api/v1/appointments/2:
-    put:
-      summary: Update
-      deprecated: false
-      description: ''
-      tags:
-        - Appointments
-      parameters:
-        - name: body
-          in: body
-          schema:
-            type: object
-            properties:
-              status:
-                type: string
-              type:
-                type: string
-              observation:
-                type: string
-            required:
-              - status
-              - type
-              - observation
-      responses:
-        '200':
-          description: ''
-          headers: {}
-          schema:
-            type: object
-            properties: {}
-      security:
-        - bearer: []
-      consumes:
-        - application/json
-      produces:
-        - application/json
-  /api/v1/appointments/28:
-    delete:
-      summary: Delete
-      deprecated: false
-      description: ''
-      tags:
-        - Appointments
-      parameters: []
-      responses:
-        '200':
-          description: ''
-          headers: {}
-          schema:
-            type: object
-            properties: {}
-      security:
-        - bearer: []
-      produces:
-        - application/json
-  /api/v1/appointments/1:
-    get:
-      summary: Get ID
-      deprecated: false
-      description: |-
-        Resposta da pesquisa por ID
-
-        ``` json
-        {
-            "id_appointment": "1",
-            "date": "2024-09-17 20:30:00",
-            "status": "pending",
-            "id_customer": "1",
-            "name_customer": "Demo TP",
-            "type_customer": "myself",
-            "email_customer": "tp@conect.app",
-            "id_user": "2",
-            "name_user": "Demo TP"
-        }
-
-         ```
-      tags:
-        - Appointments
-      parameters:
-        - name: body
-          in: body
-          schema:
-            type: object
-            properties: {}
-      responses:
-        '200':
-          description: ''
-          headers: {}
-          schema:
-            type: object
-            properties: {}
-      security:
-        - bearer: []
-      consumes:
-        - application/json
-      produces:
-        - application/json
+          description: 'Anamense encontrada'
+        '404':
+          description: 'Anamense encontrada'
+        '500':
+          description: 'Erro interno do servidor'
   /api/v1/anamneses:
+    get:
+      tags:
+        - Anamneses
+      summary: 'Listar todas as Anamneses'
+      description: 'Retorna uma lista de clientes com paginação'
+      operationId: 611a6437c376dac6f195d9fdef4f0993
+      responses:
+        '200':
+          description: 'Lista de anamneses'
+          content:
+            application/json:
+              schema:
+                properties:
+                  rows: { type: array, items: { type: object } }
+                  pagination: { type: object }
+                type: object
+        '401':
+          description: 'Token inválido ou ausente'
+        '500':
+          description: 'Erro interno do servidor'
+      security:
+        -
+          bearerAuth: []
     post:
-      summary: Create
-      deprecated: false
-      description: ''
       tags:
         - Anamneses
-      parameters:
-        - name: body
-          in: body
-          schema:
-            type: object
-            properties:
-              idCustomer:
-                type: integer
-              idAppointment:
-                type: integer
-              mentalDesequilibrio:
-                type: string
-              mentalPercentual:
-                type: integer
-              emocionalDesequilibrio:
-                type: string
-              espiritualDesequilibrio:
-                type: string
-              espiritualPercentual:
-                type: integer
-              fisicoDesequilibrio:
-                type: string
-              fisicoPercentual:
-                type: integer
-              chakraCoronarioDesequilibrio:
-                type: string
-              chakraCoronarioPercentual:
-                type: integer
-              chakraCoronarioAtividade:
-                type: string
-              chakraCoronarioOrgao:
-                type: string
-              chakraFrontalDesequilibrio:
-                type: string
-              chakraFrontalPercentual:
-                type: integer
-              chakraFrontalAtividade:
-                type: string
-              chakraFrontalOrgao:
-                type: string
-              chakraLaringeoDesequilibrio:
-                type: string
-              chakraLaringeoPercentual:
-                type: integer
-              chakraLaringeoAtividade:
-                type: string
-              chakraLaringeoOrgao:
-                type: string
-              chakraCardiacoDesequilibrio:
-                type: string
-              chakraCardiacoPercentual:
-                type: integer
-              chakraCardiacoAtividade:
-                type: string
-              chakraCardiacoOrgao:
-                type: string
-              chakraPlexoSolarDesequilibrio:
-                type: string
-              chakraPlexoSolarPercentual:
-                type: integer
-              chakraPlexoSolarAtividade:
-                type: string
-              chakraPlexoSolarOrgao:
-                type: string
-              chakraSacroDesequilibrio:
-                type: string
-              chakraSacroPercentual:
-                type: integer
-              chakraSacroAtividade:
-                type: string
-              chakraSacroOrgao:
-                type: string
-              chakraBasicoDesequilibrio:
-                type: string
-              chakraBasicoPercentual:
-                type: integer
-              chakraBasicoAtividade:
-                type: string
-              chakraBasicoOrgao:
-                type: string
-              tamanhoAura:
-                type: integer
-              auraProtection:
-                type: integer
-              tamanhoAuraComments:
-                type: string
-              tamanhoAbertura:
-                type: integer
-              tamanhoAberturaComments:
-                type: string
-              corFalta:
-                type: array
-                items:
+      summary: 'Criar nova Anamnese'
+      description: 'Cria uma nova anamnese para o cliente com base nos dados fornecidos.'
+      operationId: f26ea3690b8a2c40f6a386fccae9a645
+      requestBody:
+        description: 'Dados necessários para criar uma anamnese.'
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                idCustomer:
+                  description: 'ID do cliente'
+                  type: integer
+                idAppointment:
+                  description: 'ID do agendamento'
+                  type: integer
+                mentalDesequilibrio:
+                  description: 'Desequilíbrio mental'
                   type: string
-              corExcesso:
-                type: array
-                items:
+                  enum: [sim, não]
+                mentalPercentual:
+                  description: 'Percentual de desequilíbrio mental'
+                  type: integer
+                  maximum: 100
+                  minimum: 0
+                emocionalDesequilibrio:
+                  description: 'Desequilíbrio emocional'
                   type: string
-              corBase:
-                type: array
-                items:
+                  enum: [sim, não]
+                emocionalPercentual:
+                  description: 'Percentual de desequilíbrio emocional'
+                  type: integer
+                  maximum: 100
+                  minimum: 0
+                espiritualDesequilibrio:
+                  description: 'Desequilíbrio espiritual'
                   type: string
-              energia:
-                type: integer
-              energiaComments:
-                type: string
-              areasFamiliar:
-                type: integer
-              areasAfetivo:
-                type: integer
-              areasProfissional:
-                type: integer
-              areasFinanceiro:
-                type: integer
-              areasMissao:
-                type: integer
-            required:
-              - idCustomer
-              - idAppointment
-              - mentalDesequilibrio
-              - mentalPercentual
-              - emocionalDesequilibrio
-              - espiritualDesequilibrio
-              - espiritualPercentual
-              - fisicoDesequilibrio
-              - fisicoPercentual
-              - chakraCoronarioDesequilibrio
-              - chakraCoronarioPercentual
-              - chakraCoronarioAtividade
-              - chakraCoronarioOrgao
-              - chakraFrontalDesequilibrio
-              - chakraFrontalPercentual
-              - chakraFrontalAtividade
-              - chakraFrontalOrgao
-              - chakraLaringeoDesequilibrio
-              - chakraLaringeoPercentual
-              - chakraLaringeoAtividade
-              - chakraLaringeoOrgao
-              - chakraCardiacoDesequilibrio
-              - chakraCardiacoPercentual
-              - chakraCardiacoAtividade
-              - chakraCardiacoOrgao
-              - chakraPlexoSolarDesequilibrio
-              - chakraPlexoSolarPercentual
-              - chakraPlexoSolarAtividade
-              - chakraPlexoSolarOrgao
-              - chakraSacroDesequilibrio
-              - chakraSacroPercentual
-              - chakraSacroAtividade
-              - chakraSacroOrgao
-              - chakraBasicoDesequilibrio
-              - chakraBasicoPercentual
-              - chakraBasicoAtividade
-              - chakraBasicoOrgao
-              - tamanhoAura
-              - auraProtection
-              - tamanhoAuraComments
-              - tamanhoAbertura
-              - tamanhoAberturaComments
-              - corFalta
-              - corExcesso
-              - corBase
-              - energia
-              - energiaComments
-              - areasFamiliar
-              - areasAfetivo
-              - areasProfissional
-              - areasFinanceiro
-              - areasMissao
-      responses:
-        '200':
-          description: ''
-          headers: {}
-          schema:
-            type: object
-            properties: {}
-      security:
-        - bearer: []
-      consumes:
-        - application/json
-      produces:
-        - application/json
-    get:
-      summary: Search
-      deprecated: false
-      description: ''
-      tags:
-        - Anamneses
-      parameters:
-        - name: sort_by
-          in: query
-          description: id, created_at, updated_at
-          required: false
-          type: string
-          x-example: id
-        - name: s
-          in: query
-          description: ''
-          required: false
-          type: string
-          x-example: PH
-        - name: order
-          in: query
-          description: ASC or DESC
-          required: false
-          type: string
-          x-example: ASC
-        - name: limite
-          in: query
-          description: 1 min / 500 Max
-          required: false
-          type: string
-          x-example: '1000'
-        - name: page
-          in: query
-          description: Paginate return system
-          required: false
-          type: string
-          x-example: '1'
-      responses:
-        '200':
-          description: ''
-          headers: {}
-          schema:
-            type: object
-            properties: {}
-      security:
-        - bearer: []
-      produces:
-        - application/json
-  /api/v1/anamneses/15:
-    put:
-      summary: Update
-      deprecated: false
-      description: ''
-      tags:
-        - Anamneses
-      parameters:
-        - name: body
-          in: body
-          schema:
-            type: object
-            properties:
-              mentalDesequilibrio:
-                type: string
-              mentalPercentual:
-                type: integer
-              emocionalDesequilibrio:
-                type: string
-              emocionalPercentual:
-                type: integer
-              espiritualDesequilibrio:
-                type: string
-              espiritualPercentual:
-                type: integer
-              fisicoDesequilibrio:
-                type: string
-              fisicoPercentual:
-                type: integer
-              chakraCoronarioDesequilibrio:
-                type: string
-              chakraCoronarioPercentual:
-                type: integer
-              chakraCoronarioAtividade:
-                type: string
-              chakraCoronarioOrgao:
-                type: string
-              chakraFrontalDesequilibrio:
-                type: string
-              chakraFrontalPercentual:
-                type: integer
-              chakraFrontalAtividade:
-                type: string
-              chakraFrontalOrgao:
-                type: string
-              chakraLaringeoDesequilibrio:
-                type: string
-              chakraLaringeoPercentual:
-                type: integer
-              chakraLaringeoAtividade:
-                type: string
-              chakraLaringeoOrgao:
-                type: string
-              chakraCardiacoDesequilibrio:
-                type: string
-              chakraCardiacoPercentual:
-                type: integer
-              chakraCardiacoAtividade:
-                type: string
-              chakraCardiacoOrgao:
-                type: string
-              chakraPlexoSolarDesequilibrio:
-                type: string
-              chakraPlexoSolarPercentual:
-                type: integer
-              chakraPlexoSolarAtividade:
-                type: string
-              chakraPlexoSolarOrgao:
-                type: string
-              chakraSacroDesequilibrio:
-                type: string
-              chakraSacroPercentual:
-                type: integer
-              chakraSacroAtividade:
-                type: string
-              chakraSacroOrgao:
-                type: string
-              chakraBasicoDesequilibrio:
-                type: string
-              chakraBasicoPercentual:
-                type: integer
-              chakraBasicoAtividade:
-                type: string
-              chakraBasicoOrgao:
-                type: string
-              tamanhoAura:
-                type: integer
-              tamanhoAbertura:
-                type: integer
-              auraProtection:
-                type: integer
-              corFalta:
-                type: array
-                items:
+                  enum: [sim, não]
+                espiritualPercentual:
+                  description: 'Percentual de desequilíbrio espiritual'
+                  type: integer
+                  maximum: 100
+                  minimum: 0
+                fisicoDesequilibrio:
+                  description: 'Desequilíbrio físico'
                   type: string
-              corExcesso:
-                type: array
-                items:
+                  enum: [sim, não]
+                fisicoPercentual:
+                  description: 'Percentual de desequilíbrio físico'
+                  type: integer
+                  maximum: 100
+                  minimum: 0
+                chakraCoronarioDesequilibrio:
+                  description: 'Desequilíbrio do chakra coronário'
                   type: string
-              energia:
-                type: integer
-              areasFamiliar:
-                type: string
-              areasAfetivo:
-                type: string
-              areasProfissional:
-                type: string
-              areasFinanceiro:
-                type: string
-              areasMissao:
-                type: string
-            required:
-              - mentalDesequilibrio
-              - mentalPercentual
-              - emocionalDesequilibrio
-              - emocionalPercentual
-              - espiritualDesequilibrio
-              - espiritualPercentual
-              - fisicoDesequilibrio
-              - fisicoPercentual
-              - chakraCoronarioDesequilibrio
-              - chakraCoronarioPercentual
-              - chakraCoronarioAtividade
-              - chakraCoronarioOrgao
-              - chakraFrontalDesequilibrio
-              - chakraFrontalPercentual
-              - chakraFrontalAtividade
-              - chakraFrontalOrgao
-              - chakraLaringeoDesequilibrio
-              - chakraLaringeoPercentual
-              - chakraLaringeoAtividade
-              - chakraLaringeoOrgao
-              - chakraCardiacoDesequilibrio
-              - chakraCardiacoPercentual
-              - chakraCardiacoAtividade
-              - chakraCardiacoOrgao
-              - chakraPlexoSolarDesequilibrio
-              - chakraPlexoSolarPercentual
-              - chakraPlexoSolarAtividade
-              - chakraPlexoSolarOrgao
-              - chakraSacroDesequilibrio
-              - chakraSacroPercentual
-              - chakraSacroAtividade
-              - chakraSacroOrgao
-              - chakraBasicoDesequilibrio
-              - chakraBasicoPercentual
-              - chakraBasicoAtividade
-              - chakraBasicoOrgao
-              - tamanhoAura
-              - tamanhoAbertura
-              - auraProtection
-              - corFalta
-              - corExcesso
-              - energia
-              - areasFamiliar
-              - areasAfetivo
-              - areasProfissional
-              - areasFinanceiro
-              - areasMissao
+                  enum: [sim, não]
+                chakraCoronarioPercentual:
+                  description: 'Percentual de desequilíbrio do chakra coronário'
+                  type: integer
+                  maximum: 100
+                  minimum: 0
+                chakraCoronarioAtividade:
+                  description: 'Atividade do chakra coronário'
+                  type: string
+                  enum: [HIPO, HIPER]
+                chakraCoronarioOrgao:
+                  description: 'Órgão afetado pelo chakra coronário'
+                  type: string
+                  enum: [sim, não]
+                chakraFrontalDesequilibrio:
+                  description: 'Desequilíbrio do chakra frontal'
+                  type: string
+                  enum: [sim, não]
+                chakraFrontalPercentual:
+                  description: 'Percentual de desequilíbrio do chakra frontal'
+                  type: integer
+                  maximum: 100
+                  minimum: 0
+                chakraFrontalAtividade:
+                  description: 'Atividade do chakra frontal'
+                  type: string
+                  enum: [HIPO, HIPER]
+                chakraFrontalOrgao:
+                  description: 'Órgão afetado pelo chakra frontal'
+                  type: string
+                  enum: [sim, não]
+                chakraLaringeoDesequilibrio:
+                  description: 'Desequilíbrio do chakra laríngeo'
+                  type: string
+                  enum: [sim, não]
+                chakraLaringeoPercentual:
+                  description: 'Percentual de desequilíbrio do chakra laríngeo'
+                  type: integer
+                  maximum: 100
+                  minimum: 0
+                chakraLaringeoAtividade:
+                  description: 'Atividade do chakra laríngeo'
+                  type: string
+                  enum: [HIPO, HIPER]
+                chakraLaringeoOrgao:
+                  description: 'Órgão afetado pelo chakra laríngeo'
+                  type: string
+                  enum: [sim, não]
+                chakraCardiacoDesequilibrio:
+                  description: 'Desequilíbrio do chakra cardíaco'
+                  type: string
+                  enum: [sim, não]
+                chakraCardiacoPercentual:
+                  description: 'Percentual de desequilíbrio do chakra cardíaco'
+                  type: integer
+                  maximum: 100
+                  minimum: 0
+                chakraCardiacoAtividade:
+                  description: 'Atividade do chakra cardíaco'
+                  type: string
+                  enum: [HIPO, HIPER]
+                chakraCardiacoOrgao:
+                  description: 'Órgão afetado pelo chakra cardíaco'
+                  type: string
+                  enum: [sim, não]
+                chakraPlexoSolarDesequilibrio:
+                  description: 'Desequilíbrio do chakra plexo solar'
+                  type: string
+                  enum: [sim, não]
+                chakraPlexoSolarPercentual:
+                  description: 'Percentual de desequilíbrio do chakra plexo solar'
+                  type: integer
+                  maximum: 100
+                  minimum: 0
+                chakraPlexoSolarAtividade:
+                  description: 'Atividade do chakra plexo solar'
+                  type: string
+                  enum: [HIPO, HIPER]
+                chakraPlexoSolarOrgao:
+                  description: 'Órgão afetado pelo chakra plexo solar'
+                  type: string
+                  enum: [sim, não]
+                chakraSacroDesequilibrio:
+                  description: 'Desequilíbrio do chakra sacro'
+                  type: string
+                  enum: [sim, não]
+                chakraSacroPercentual:
+                  description: 'Percentual de desequilíbrio do chakra sacro'
+                  type: integer
+                  maximum: 100
+                  minimum: 0
+                chakraSacroAtividade:
+                  description: 'Atividade do chakra sacro'
+                  type: string
+                  enum: [HIPO, HIPER]
+                chakraSacroOrgao:
+                  description: 'Órgão afetado pelo chakra sacro'
+                  type: string
+                  enum: [sim, não]
+                chakraBasicoDesequilibrio:
+                  description: 'Desequilíbrio do chakra básico'
+                  type: string
+                  enum: [sim, não]
+                chakraBasicoPercentual:
+                  description: 'Percentual de desequilíbrio do chakra básico'
+                  type: integer
+                  maximum: 100
+                  minimum: 0
+                chakraBasicoAtividade:
+                  description: 'Atividade do chakra básico'
+                  type: string
+                  enum: [HIPO, HIPER]
+                chakraBasicoOrgao:
+                  description: 'Órgão afetado pelo chakra básico'
+                  type: string
+                  enum: [sim, não]
+                tamanhoAura:
+                  description: 'Tamanho da aura'
+                  type: integer
+                  minimum: 0
+                tamanhoAbertura:
+                  description: 'Tamanho da abertura'
+                  type: integer
+                  minimum: 0
+                corFalta:
+                  description: 'Cores em falta'
+                  type: array
+                  items: { type: string }
+                corExcesso:
+                  description: 'Cores em excesso'
+                  type: array
+                  items: { type: string }
+                corBase:
+                  description: 'Cores base'
+                  type: array
+                  items: { type: string }
+                energia:
+                  description: 'Nível de energia'
+                  type: integer
+                  maximum: 100
+                  minimum: 0
+                areasFamiliar:
+                  description: 'Área familiar'
+                  type: integer
+                  maximum: 100
+                  minimum: 0
+                areasAfetivo:
+                  description: 'Área afetiva'
+                  type: integer
+                  maximum: 100
+                  minimum: 0
+                areasProfissional:
+                  description: 'Área profissional'
+                  type: integer
+                  maximum: 100
+                  minimum: 0
+                areasFinanceiro:
+                  description: 'Área financeira'
+                  type: integer
+                  maximum: 100
+                  minimum: 0
+                areasMissao:
+                  description: 'Área de missão'
+                  type: integer
+                  maximum: 100
+                  minimum: 0
+              type: object
       responses:
-        '200':
-          description: ''
-          headers: {}
-          schema:
-            type: object
-            properties: {}
+        '201':
+          description: 'Anamnese criada com sucesso'
+          content:
+            application/json:
+              schema:
+                properties:
+                  message: { description: 'Mensagem de sucesso', type: string }
+                type: object
+        '400':
+          description: 'Requisição inválida'
+        '422':
+          description: 'Erros de validação'
+        '500':
+          description: 'Erro interno do servidor'
       security:
-        - bearer: []
-      consumes:
-        - application/json
-      produces:
-        - application/json
-    delete:
-      summary: Delete
-      deprecated: false
-      description: ''
-      tags:
-        - Anamneses
-      parameters: []
-      responses:
-        '200':
-          description: ''
-          headers: {}
-          schema:
-            type: object
-            properties: {}
-      security:
-        - bearer: []
-      produces:
-        - application/json
-  /api/v1/anamneses/58:
-    get:
-      summary: Get ID
-      deprecated: false
-      description: ''
-      tags:
-        - Anamneses
-      parameters:
-        - name: body
-          in: body
-          schema:
-            type: object
-            properties: {}
-      responses:
-        '200':
-          description: ''
-          headers: {}
-          schema:
-            type: object
-            properties: {}
-      security:
-        - bearer: []
-      consumes:
-        - application/json
-      produces:
-        - application/json
-  /anamnese/pbzt0arxehw3klju2gfi:
-    get:
-      summary: Rota aberta para consulta do cliente
-      deprecated: false
-      description: ''
-      tags:
-        - Anamneses
-      parameters: []
-      responses:
-        '200':
-          description: ''
-          headers: {}
-          schema:
-            type: object
-            properties: {}
-      security: []
-      produces:
-        - application/json
+        -
+          bearerAuth: []
   /api/v1/anamneses/comparation:
     get:
-      summary: Comparação
-      deprecated: false
-      description: ''
       tags:
         - Anamneses
-      parameters:
-        - name: baseId
-          in: query
-          description: ''
-          required: true
-          type: string
-          x-example: '1'
-        - name: comparationId
-          in: query
-          description: ''
-          required: true
-          type: string
-          x-example: '2'
-      responses:
-        '200':
-          description: ''
-          headers: {}
-          schema:
-            type: object
-            properties:
-              comparisons:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    id:
-                      type: string
-                    id_customer:
-                      type: string
-                    create:
-                      type: string
-                    differences:
-                      type: object
-                      properties:
-                        mental_imbalance:
-                          type: object
-                          properties:
-                            base_value:
-                              type: string
-                            current_value:
-                              type: string
-                            difference:
-                              type: 'null'
-                          required:
-                            - base_value
-                            - current_value
-                            - difference
-                        mental_percentage:
-                          type: object
-                          properties:
-                            base_value:
-                              type: integer
-                            current_value:
-                              type: integer
-                            difference:
-                              type: integer
-                          required:
-                            - base_value
-                            - current_value
-                            - difference
-                        emotional_imbalance:
-                          type: object
-                          properties:
-                            base_value:
-                              type: string
-                            current_value:
-                              type: string
-                            difference:
-                              type: 'null'
-                          required:
-                            - base_value
-                            - current_value
-                            - difference
-                        emotional_percentage:
-                          type: object
-                          properties:
-                            base_value:
-                              type: integer
-                            current_value:
-                              type: integer
-                            difference:
-                              type: integer
-                          required:
-                            - base_value
-                            - current_value
-                            - difference
-                        spiritual_imbalance:
-                          type: object
-                          properties:
-                            base_value:
-                              type: string
-                            current_value:
-                              type: string
-                            difference:
-                              type: 'null'
-                          required:
-                            - base_value
-                            - current_value
-                            - difference
-                        spiritual_percentage:
-                          type: object
-                          properties:
-                            base_value:
-                              type: integer
-                            current_value:
-                              type: integer
-                            difference:
-                              type: integer
-                          required:
-                            - base_value
-                            - current_value
-                            - difference
-                        physical_imbalance:
-                          type: object
-                          properties:
-                            base_value:
-                              type: string
-                            current_value:
-                              type: string
-                            difference:
-                              type: 'null'
-                          required:
-                            - base_value
-                            - current_value
-                            - difference
-                        physical_percentage:
-                          type: object
-                          properties:
-                            base_value:
-                              type: integer
-                            current_value:
-                              type: integer
-                            difference:
-                              type: integer
-                          required:
-                            - base_value
-                            - current_value
-                            - difference
-                        coronary_chakra_imbalance:
-                          type: object
-                          properties:
-                            base_value:
-                              type: string
-                            current_value:
-                              type: string
-                            difference:
-                              type: 'null'
-                          required:
-                            - base_value
-                            - current_value
-                            - difference
-                        coronary_chakra_percentage:
-                          type: object
-                          properties:
-                            base_value:
-                              type: integer
-                            current_value:
-                              type: integer
-                            difference:
-                              type: integer
-                          required:
-                            - base_value
-                            - current_value
-                            - difference
-                        coronary_chakra_activity:
-                          type: object
-                          properties:
-                            base_value:
-                              type: string
-                            current_value:
-                              type: string
-                            difference:
-                              type: 'null'
-                          required:
-                            - base_value
-                            - current_value
-                            - difference
-                        coronary_chakra_affects_organ:
-                          type: object
-                          properties:
-                            base_value:
-                              type: string
-                            current_value:
-                              type: string
-                            difference:
-                              type: 'null'
-                          required:
-                            - base_value
-                            - current_value
-                            - difference
-                        frontal_chakra_imbalance:
-                          type: object
-                          properties:
-                            base_value:
-                              type: string
-                            current_value:
-                              type: string
-                            difference:
-                              type: 'null'
-                          required:
-                            - base_value
-                            - current_value
-                            - difference
-                        frontal_chakra_percentage:
-                          type: object
-                          properties:
-                            base_value:
-                              type: integer
-                            current_value:
-                              type: integer
-                            difference:
-                              type: integer
-                          required:
-                            - base_value
-                            - current_value
-                            - difference
-                        frontal_chakra_activity:
-                          type: object
-                          properties:
-                            base_value:
-                              type: string
-                            current_value:
-                              type: string
-                            difference:
-                              type: 'null'
-                          required:
-                            - base_value
-                            - current_value
-                            - difference
-                        frontal_chakra_affects_organ:
-                          type: object
-                          properties:
-                            base_value:
-                              type: string
-                            current_value:
-                              type: string
-                            difference:
-                              type: 'null'
-                          required:
-                            - base_value
-                            - current_value
-                            - difference
-                        laryngeal_chakra_imbalance:
-                          type: object
-                          properties:
-                            base_value:
-                              type: string
-                            current_value:
-                              type: string
-                            difference:
-                              type: 'null'
-                          required:
-                            - base_value
-                            - current_value
-                            - difference
-                        laryngeal_chakra_percentage:
-                          type: object
-                          properties:
-                            base_value:
-                              type: integer
-                            current_value:
-                              type: integer
-                            difference:
-                              type: integer
-                          required:
-                            - base_value
-                            - current_value
-                            - difference
-                        laryngeal_chakra_activity:
-                          type: object
-                          properties:
-                            base_value:
-                              type: string
-                            current_value:
-                              type: string
-                            difference:
-                              type: 'null'
-                          required:
-                            - base_value
-                            - current_value
-                            - difference
-                        laryngeal_chakra_affects_organ:
-                          type: object
-                          properties:
-                            base_value:
-                              type: string
-                            current_value:
-                              type: string
-                            difference:
-                              type: 'null'
-                          required:
-                            - base_value
-                            - current_value
-                            - difference
-                        cardiac_chakra_imbalance:
-                          type: object
-                          properties:
-                            base_value:
-                              type: string
-                            current_value:
-                              type: string
-                            difference:
-                              type: 'null'
-                          required:
-                            - base_value
-                            - current_value
-                            - difference
-                        cardiac_chakra_percentage:
-                          type: object
-                          properties:
-                            base_value:
-                              type: integer
-                            current_value:
-                              type: integer
-                            difference:
-                              type: integer
-                          required:
-                            - base_value
-                            - current_value
-                            - difference
-                        cardiac_chakra_activity:
-                          type: object
-                          properties:
-                            base_value:
-                              type: string
-                            current_value:
-                              type: string
-                            difference:
-                              type: 'null'
-                          required:
-                            - base_value
-                            - current_value
-                            - difference
-                        cardiac_chakra_affects_organ:
-                          type: object
-                          properties:
-                            base_value:
-                              type: string
-                            current_value:
-                              type: string
-                            difference:
-                              type: 'null'
-                          required:
-                            - base_value
-                            - current_value
-                            - difference
-                        solar_plexus_chakra_imbalance:
-                          type: object
-                          properties:
-                            base_value:
-                              type: string
-                            current_value:
-                              type: string
-                            difference:
-                              type: 'null'
-                          required:
-                            - base_value
-                            - current_value
-                            - difference
-                        solar_plexus_chakra_percentage:
-                          type: object
-                          properties:
-                            base_value:
-                              type: integer
-                            current_value:
-                              type: integer
-                            difference:
-                              type: integer
-                          required:
-                            - base_value
-                            - current_value
-                            - difference
-                        solar_plexus_chakra_activity:
-                          type: object
-                          properties:
-                            base_value:
-                              type: string
-                            current_value:
-                              type: string
-                            difference:
-                              type: 'null'
-                          required:
-                            - base_value
-                            - current_value
-                            - difference
-                        solar_plexus_chakra_affects_organ:
-                          type: object
-                          properties:
-                            base_value:
-                              type: string
-                            current_value:
-                              type: string
-                            difference:
-                              type: 'null'
-                          required:
-                            - base_value
-                            - current_value
-                            - difference
-                        sacral_chakra_imbalance:
-                          type: object
-                          properties:
-                            base_value:
-                              type: string
-                            current_value:
-                              type: string
-                            difference:
-                              type: 'null'
-                          required:
-                            - base_value
-                            - current_value
-                            - difference
-                        sacral_chakra_percentage:
-                          type: object
-                          properties:
-                            base_value:
-                              type: integer
-                            current_value:
-                              type: integer
-                            difference:
-                              type: integer
-                          required:
-                            - base_value
-                            - current_value
-                            - difference
-                        sacral_chakra_activity:
-                          type: object
-                          properties:
-                            base_value:
-                              type: string
-                            current_value:
-                              type: string
-                            difference:
-                              type: 'null'
-                          required:
-                            - base_value
-                            - current_value
-                            - difference
-                        sacral_chakra_affects_organ:
-                          type: object
-                          properties:
-                            base_value:
-                              type: string
-                            current_value:
-                              type: string
-                            difference:
-                              type: 'null'
-                          required:
-                            - base_value
-                            - current_value
-                            - difference
-                        base_chakra_imbalance:
-                          type: object
-                          properties:
-                            base_value:
-                              type: string
-                            current_value:
-                              type: string
-                            difference:
-                              type: 'null'
-                          required:
-                            - base_value
-                            - current_value
-                            - difference
-                        base_chakra_percentage:
-                          type: object
-                          properties:
-                            base_value:
-                              type: integer
-                            current_value:
-                              type: integer
-                            difference:
-                              type: integer
-                          required:
-                            - base_value
-                            - current_value
-                            - difference
-                        base_chakra_activity:
-                          type: object
-                          properties:
-                            base_value:
-                              type: string
-                            current_value:
-                              type: string
-                            difference:
-                              type: 'null'
-                          required:
-                            - base_value
-                            - current_value
-                            - difference
-                        base_chakra_affects_organ:
-                          type: object
-                          properties:
-                            base_value:
-                              type: string
-                            current_value:
-                              type: string
-                            difference:
-                              type: 'null'
-                          required:
-                            - base_value
-                            - current_value
-                            - difference
-                        aura_size:
-                          type: object
-                          properties:
-                            base_value:
-                              type: integer
-                            current_value:
-                              type: integer
-                            difference:
-                              type: integer
-                          required:
-                            - base_value
-                            - current_value
-                            - difference
-                        aura_size_comments:
-                          type: object
-                          properties:
-                            base_value:
-                              type: string
-                            current_value:
-                              type: string
-                            difference:
-                              type: 'null'
-                          required:
-                            - base_value
-                            - current_value
-                            - difference
-                        opening_size:
-                          type: object
-                          properties:
-                            base_value:
-                              type: integer
-                            current_value:
-                              type: integer
-                            difference:
-                              type: integer
-                          required:
-                            - base_value
-                            - current_value
-                            - difference
-                        opening_size_comments:
-                          type: object
-                          properties:
-                            base_value:
-                              type: string
-                            current_value:
-                              type: string
-                            difference:
-                              type: 'null'
-                          required:
-                            - base_value
-                            - current_value
-                            - difference
-                        color_lack:
-                          type: object
-                          properties:
-                            base_value:
-                              type: string
-                            current_value:
-                              type: string
-                            difference:
-                              type: 'null'
-                          required:
-                            - base_value
-                            - current_value
-                            - difference
-                        color_excess:
-                          type: object
-                          properties:
-                            base_value:
-                              type: string
-                            current_value:
-                              type: string
-                            difference:
-                              type: 'null'
-                          required:
-                            - base_value
-                            - current_value
-                            - difference
-                        energy_comments:
-                          type: object
-                          properties:
-                            base_value:
-                              type: string
-                            current_value:
-                              type: string
-                            difference:
-                              type: 'null'
-                          required:
-                            - base_value
-                            - current_value
-                            - difference
-                        family_area:
-                          type: object
-                          properties:
-                            base_value:
-                              type: integer
-                            current_value:
-                              type: integer
-                            difference:
-                              type: integer
-                          required:
-                            - base_value
-                            - current_value
-                            - difference
-                        affective_area:
-                          type: object
-                          properties:
-                            base_value:
-                              type: integer
-                            current_value:
-                              type: integer
-                            difference:
-                              type: integer
-                          required:
-                            - base_value
-                            - current_value
-                            - difference
-                        professional_area:
-                          type: object
-                          properties:
-                            base_value:
-                              type: integer
-                            current_value:
-                              type: integer
-                            difference:
-                              type: integer
-                          required:
-                            - base_value
-                            - current_value
-                            - difference
-                        financial_area:
-                          type: object
-                          properties:
-                            base_value:
-                              type: integer
-                            current_value:
-                              type: integer
-                            difference:
-                              type: integer
-                          required:
-                            - base_value
-                            - current_value
-                            - difference
-                        mission_area:
-                          type: object
-                          properties:
-                            base_value:
-                              type: integer
-                            current_value:
-                              type: integer
-                            difference:
-                              type: integer
-                          required:
-                            - base_value
-                            - current_value
-                            - difference
-                        created_at:
-                          type: object
-                          properties:
-                            base_value:
-                              type: string
-                            current_value:
-                              type: string
-                            difference:
-                              type: 'null'
-                          required:
-                            - base_value
-                            - current_value
-                            - difference
-                      required:
-                        - mental_imbalance
-                        - mental_percentage
-                        - emotional_imbalance
-                        - emotional_percentage
-                        - spiritual_imbalance
-                        - spiritual_percentage
-                        - physical_imbalance
-                        - physical_percentage
-                        - coronary_chakra_imbalance
-                        - coronary_chakra_percentage
-                        - coronary_chakra_activity
-                        - coronary_chakra_affects_organ
-                        - frontal_chakra_imbalance
-                        - frontal_chakra_percentage
-                        - frontal_chakra_activity
-                        - frontal_chakra_affects_organ
-                        - laryngeal_chakra_imbalance
-                        - laryngeal_chakra_percentage
-                        - laryngeal_chakra_activity
-                        - laryngeal_chakra_affects_organ
-                        - cardiac_chakra_imbalance
-                        - cardiac_chakra_percentage
-                        - cardiac_chakra_activity
-                        - cardiac_chakra_affects_organ
-                        - solar_plexus_chakra_imbalance
-                        - solar_plexus_chakra_percentage
-                        - solar_plexus_chakra_activity
-                        - solar_plexus_chakra_affects_organ
-                        - sacral_chakra_imbalance
-                        - sacral_chakra_percentage
-                        - sacral_chakra_activity
-                        - sacral_chakra_affects_organ
-                        - base_chakra_imbalance
-                        - base_chakra_percentage
-                        - base_chakra_activity
-                        - base_chakra_affects_organ
-                        - aura_size
-                        - aura_size_comments
-                        - opening_size
-                        - opening_size_comments
-                        - color_lack
-                        - color_excess
-                        - energy_comments
-                        - family_area
-                        - affective_area
-                        - professional_area
-                        - financial_area
-                        - mission_area
-                        - created_at
-                    base_id:
-                      type: string
-            required:
-              - comparisons
-      security:
-        - bearer: []
-      produces:
-        - application/json
-  /api/v1/tasks:
-    post:
-      summary: Create
-      deprecated: false
+      summary: 'Compara anamneses de um cliente com base em IDs fornecidos'
       description: ''
-      tags:
-        - Tasks
+      operationId: compareAnamneses
       parameters:
-        - name: body
-          in: body
+        -
+          name: baseId
+          in: query
+          description: 'ID anamnese base'
+          required: true
           schema:
-            type: object
-            properties:
-              title:
-                type: string
-              description:
-                type: string
-              status:
-                type: string
-              datetime:
-                type: string
-            required:
-              - title
-              - description
-              - status
-              - datetime
+            type: string
+          example: '1'
+        -
+          name: comparationId
+          in: query
+          description: 'ID anamnese para comparar'
+          required: true
+          schema:
+            type: string
+          example: '2'
       responses:
         '200':
-          description: ''
-          headers: {}
-          schema:
-            type: object
-            properties: {}
+          description: 'Comparação realizada com sucesso'
+          content:
+            application/json:
+              schema:
+                properties:
+                  comparisons: { description: 'Array de resultados de comparação', type: array, items: { properties: { id: { description: 'ID da anamnese comparada', type: integer }, id_customer: { description: 'ID do cliente associado', type: integer }, differences: { description: 'Diferenças comparadas com a anamnese base', properties: { base_value: { description: 'Valor na anamnese base', type: number }, current_value: { description: 'Valor atual comparado', type: number }, difference: { description: 'Diferença calculada', type: number } }, type: object }, base_id: { description: 'ID da anamnese base para comparação', type: integer } }, type: object } }
+                type: object
+        '400':
+          description: 'Parâmetros inválidos ou erro na requisição'
+          content:
+            application/json:
+              schema:
+                properties:
+                  error: { description: 'Mensagem de erro detalhada', type: string }
+                type: object
+        '404':
+          description: 'Nenhuma anamnese encontrada para os IDs fornecidos'
+          content:
+            application/json:
+              schema:
+                properties:
+                  error: { description: 'Mensagem de erro detalhada', type: string }
+                type: object
+        '500':
+          description: 'Erro interno do servidor'
+          content:
+            application/json:
+              schema:
+                properties:
+                  error: { description: 'Mensagem de erro interna', type: string }
+                type: object
       security:
-        - bearer: []
-      consumes:
-        - application/json
-      produces:
-        - application/json
+        -
+          bearerAuth: []
+  /api/v1/appointments:
     get:
-      summary: Search
-      deprecated: false
-      description: ''
       tags:
-        - Tasks
+        - Agendamentos
+      summary: 'Search appointments'
+      description: 'Retrieves a list of appointments based on various filters.'
+      operationId: d3f60f51ec83391eda9230754668aff5
       parameters:
-        - name: s
+        -
+          name: s
           in: query
-          description: Data, titulo, descrição
-          required: true
-          type: string
-          x-example: ''
-        - name: status
-          in: query
-          description: pending, completed
-          required: true
-          type: string
-          x-example: ''
-        - name: order
-          in: query
-          description: asc ou desc
-          required: true
-          type: string
-          x-example: ''
-        - name: sort_by
-          in: query
-          description: id, order, title
-          required: true
-          type: string
-          x-example: ''
-        - name: page
-          in: query
-          description: int
-          required: true
-          type: string
-          x-example: ''
-        - name: limite
-          in: query
-          description: '500'
-          required: true
-          type: string
-          x-example: ''
-      responses:
-        '200':
-          description: ''
-          headers: {}
+          description: 'Search term for filtering appointments by customer name, email, or phone'
+          required: false
           schema:
-            type: object
-            properties: {}
-      security:
-        - bearer: []
-      produces:
-        - application/json
-  /api/v1/tasks/6:
-    put:
-      summary: Update
-      deprecated: false
-      description: ''
-      tags:
-        - Tasks
-      parameters:
-        - name: body
-          in: body
+            type: string
+        -
+          name: order
+          in: query
+          description: 'Order of the results. Possible values: ASC, DESC.'
+          required: false
           schema:
-            type: object
-            properties:
-              title:
-                type: string
-              description:
-                type: string
-              status:
-                type: string
-            required:
-              - title
-              - description
+            type: string
+            default: ASC
+            enum:
+              - ASC
+              - DESC
+        -
+          name: sort_by
+          in: query
+          description: 'Field to sort the results by. Possible values: id, date, name, status.'
+          required: false
+          schema:
+            type: string
+            default: id
+            enum:
+              - id
+              - date
+              - name
               - status
+        -
+          name: limite
+          in: query
+          description: 'Limit the number of results per page'
+          required: false
+          schema:
+            type: integer
+            default: 10
+        -
+          name: page
+          in: query
+          description: 'Page number for pagination'
+          required: false
+          schema:
+            type: integer
+            default: 1
+        -
+          name: start
+          in: query
+          description: 'Start date for filtering appointments in format Y-m-d H:i'
+          required: false
+          schema:
+            type: string
+            format: datetime
+            example: '2024-09-01 00:00'
+        -
+          name: end
+          in: query
+          description: 'End date for filtering appointments in format Y-m-d H:i'
+          required: false
+          schema:
+            type: string
+            format: datetime
+            example: '2024-09-30 23:59'
+        -
+          name: status
+          in: query
+          description: 'Status of the appointments to filter. Possible values: pending, completed, cancelled.'
+          required: false
+          schema:
+            type: string
+            enum:
+              - pending
+              - completed
+              - cancelled
+        -
+          name: type
+          in: query
+          description: 'Type of the appointment. Possible values: consultation, anamnesis, return.'
+          required: false
+          schema:
+            type: string
+            enum:
+              - consultation
+              - anamnesis
+              - return
       responses:
         '200':
-          description: ''
-          headers: {}
-          schema:
-            type: object
-            properties: {}
+          description: 'List of appointments retrieved successfully'
+          content:
+            application/json:
+              schema:
+                properties:
+                  rows: { description: 'List of appointments', type: array, items: { properties: { id_appointment: { description: 'ID of the appointment', type: integer }, appointment: { description: 'Date and time of the appointment', type: string, format: datetime }, status: { description: 'Status of the appointment', type: string }, id_customer: { description: 'ID of the customer', type: integer }, name_customer: { description: 'Name of the customer', type: string }, id_user: { description: 'ID of the user who created the appointment', type: integer }, name_user: { description: 'Name of the user who created the appointment', type: string } }, type: object } }
+                  params: { description: 'Parameters used for filtering', properties: { s: { description: 'Search term used', type: string }, order: { description: 'Order of results', type: string }, sort_by: { description: 'Field used for sorting', type: string }, limite: { description: 'Number of results per page', type: integer }, page: { description: 'Current page number', type: integer }, start: { description: 'Start date for filtering', type: string, format: datetime }, end: { description: 'End date for filtering', type: string, format: datetime }, status: { description: 'Status filter used', type: string } }, type: object }
+                  dateRange: { description: 'Date range applied in filtering', properties: { start: { description: 'Start date of the range', type: string, format: datetime }, end: { description: 'End date of the range', type: string, format: datetime } }, type: object }
+                  pagination: { description: 'Pagination details', properties: { current_page: { description: 'Current page number', type: integer }, total_pages: { description: 'Total number of pages', type: integer }, total_items: { description: 'Total number of items', type: integer }, items_per_page: { description: 'Number of items per page', type: integer }, prev_page: { description: 'Previous page number if applicable', type: integer, nullable: true }, next_page: { description: 'Next page number if applicable', type: integer, nullable: true } }, type: object }
+                type: object
+        '401':
+          description: 'Invalid or missing token'
+        '422':
+          description: 'Validation error: Check the query parameters'
+        '500':
+          description: 'Internal server error'
       security:
-        - bearer: []
-      consumes:
-        - application/json
-      produces:
-        - application/json
-  /api/v1/tasks/order:
-    put:
-      summary: Order tasks
-      deprecated: false
-      description: ''
+        -
+          bearerAuth: []
+    post:
       tags:
-        - Tasks
-      parameters:
-        - name: body
-          in: body
-          schema:
-            type: array
-            items:
-              type: object
+        - Agendamentos
+      summary: 'Create a new appointment'
+      description: 'Creates a new appointment with the provided data.'
+      operationId: 1a35fb2088463cbe79946aa79af97c7c
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
               properties:
-                id:
+                id_customer:
+                  description: 'ID of the customer'
                   type: integer
-                order:
+                date:
+                  description: 'Date and time of the appointment in format Y-m-d H:i'
                   type: string
+                  format: datetime
+                  example: '2024-09-15 09:30'
+                type:
+                  description: 'Type of the appointment. Possible values: consultation, anamnesis, return.'
+                  type: string
+                  enum: [consultation, anamnesis, return]
+              type: object
+      responses:
+        '201':
+          description: 'Appointment created successfully'
+          content:
+            application/json:
+              schema:
+                properties:
+                  id: { description: 'ID of the created appointment', type: integer }
+                  message: { type: string, example: 'Schedule created successfully.' }
+                type: object
+        '409':
+          description: 'Conflict: Appointment already exists'
+        '422':
+          description: 'Validation error'
+        '500':
+          description: 'Internal server error'
+      security:
+        -
+          bearerAuth: []
+  '/api/v1/appointments/{id}':
+    get:
+      tags:
+        - Agendamentos
+      summary: 'Get an appointment'
+      description: 'Retrieves details of an appointment by its ID.'
+      operationId: 4ba1f1715606a9f485ada4e80dd8e96b
+      parameters:
+        -
+          name: id
+          in: path
+          description: 'Appointment ID'
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: 'Appointment details retrieved successfully'
+          content:
+            application/json:
+              schema:
+                properties:
+                  id_appointment: { description: 'ID of the appointment', type: integer }
+                  date: { description: 'Date and time of the appointment', type: string, format: datetime }
+                  status: { description: 'Status of the appointment', type: string }
+                  id_customer: { description: 'ID of the customer', type: integer }
+                  name_customer: { description: 'Name of the customer', type: string }
+                  id_user: { description: 'ID of the user', type: integer }
+                  name_user: { description: 'Name of the user who created the appointment', type: string }
+                type: object
+        '401':
+          description: 'Invalid or missing token'
+        '404':
+          description: 'Appointment not found'
+        '422':
+          description: 'Validation error: ID is required'
+        '500':
+          description: 'Internal server error'
+      security:
+        -
+          bearerAuth: []
+    put:
+      tags:
+        - Agendamentos
+      summary: 'Update an appointment'
+      description: 'Updates an existing appointment based on the provided ID.'
+      operationId: 0c138293790c47419a2851fea09663aa
+      parameters:
+        -
+          name: id
+          in: path
+          description: 'Appointment ID'
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                status:
+                  description: 'Status of the appointment. Possible values: pending, completed, cancelled.'
+                  type: string
+                  enum: [pending, completed, cancelled]
+                type:
+                  description: 'Type of the appointment. Possible values: consultation, anamnesis, return.'
+                  type: string
+                  enum: [consultation, anamnesis, return]
+              type: object
+      responses:
+        '200':
+          description: 'Appointment updated successfully'
+        '401':
+          description: 'Invalid or missing token'
+        '404':
+          description: 'Appointment not found'
+        '422':
+          description: 'Validation error'
+        '500':
+          description: 'Internal server error'
+      security:
+        -
+          bearerAuth: []
+    delete:
+      tags:
+        - Agendamentos
+      summary: 'Delete an appointment'
+      description: 'Deletes an existing appointment based on the provided ID.'
+      operationId: 4a7411fb90b1548afb7eb856334fd7e1
+      parameters:
+        -
+          name: id
+          in: path
+          description: 'Appointment ID'
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: 'Appointment deleted successfully'
+        '401':
+          description: 'Invalid or missing token'
+        '404':
+          description: 'Appointment not found'
+        '500':
+          description: 'Internal server error'
+      security:
+        -
+          bearerAuth: []
+  /api/v1/login:
+    post:
+      tags:
+        - Autenticação
+      summary: Login
+      description: 'Retorna um token JWT'
+      operationId: 3b889298fc72067506f70fb423b6a004
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
               required:
-                - id
-                - order
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: usuario@exemplo.com
+                password:
+                  type: string
+                  format: password
+                  example: '123456'
+              type: object
       responses:
         '200':
-          description: ''
-          headers: {}
-          schema:
-            type: object
-            properties: {}
-      security:
-        - bearer: []
-      consumes:
-        - application/json
-      produces:
-        - application/json
-  /api/v1/tasks/2:
-    delete:
-      summary: Delete
-      deprecated: false
-      description: ''
-      tags:
-        - Tasks
-      parameters:
-        - name: body
-          in: body
-          schema:
-            type: object
-            properties: {}
-      responses:
-        '200':
-          description: ''
-          headers: {}
-          schema:
-            type: object
-            properties: {}
-      security:
-        - bearer: []
-      consumes:
-        - application/json
-      produces:
-        - application/json
-  /api/v1/tasks/1:
-    get:
-      summary: Get ID
-      deprecated: false
-      description: ''
-      tags:
-        - Tasks
-      parameters: []
-      responses:
-        '200':
-          description: ''
-          headers: {}
-          schema:
-            type: object
-            properties: {}
-      security:
-        - bearer: []
-      produces:
-        - application/json
-  /api/v1/webhook/greem:
-    post:
-      summary: Create account with greem
-      deprecated: false
-      description: ''
-      tags:
-        - Webhook
-      parameters:
-        - name: body
-          in: body
-          schema:
-            type: object
-            properties:
-              currentStatus:
-                type: string
-              client:
-                type: object
+          description: 'Token JWT gerado com sucesso'
+          content:
+            application/json:
+              schema:
                 properties:
-                  email:
-                    type: string
-                  name:
-                    type: string
-                  cellphone:
-                    type: string
-                required:
-                  - email
-                  - name
-                  - cellphone
-              product:
+                  token: { type: string, example: eyJhbGciOiJIUzI1NiIsInR... }
                 type: object
+        '401':
+          description: 'Credenciais inválidas'
+        '400':
+          description: 'Dados de entrada inválidos'
+  /api/v1/magiclink:
+    post:
+      tags:
+        - Autenticação
+      summary: 'Autenticação com Link Mágico'
+      description: 'Autentica o usuário utilizando um token de link mágico e retorna um token JWT.'
+      operationId: cb7d7f1d97cbed904cb95ea42ba6d90a
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              required:
+                - magiclink
+              properties:
+                magiclink:
+                  type: string
+                  example: token_de_link_magico_gerado
+              type: object
+      responses:
+        '200':
+          description: 'Token JWT gerado com sucesso'
+          content:
+            application/json:
+              schema:
                 properties:
-                  id:
-                    type: string
-                  name:
-                    type: string
-                required:
-                  - id
-                  - name
-            required:
-              - currentStatus
-              - client
-              - product
+                  token: { type: string, example: eyJhbGciOiJIUzI1NiIsInR... }
+                type: object
+        '400':
+          description: 'Token de link mágico não fornecido ou inválido'
+        '500':
+          description: 'Erro inesperado no servidor'
+  /api/v1/logout:
+    get:
+      tags:
+        - Autenticação
+      summary: 'Logout do usuário'
+      description: 'Realiza logout e invalida o token JWT'
+      operationId: f9413ca466b6033b3b76dbc7823c0d85
       responses:
         '200':
-          description: ''
-          headers: {}
-          schema:
-            type: object
-            properties: {}
-      security: []
-      consumes:
-        - application/json
-      produces:
-        - application/json
-  /api/v1/users:
+          description: 'Logout realizado com sucesso'
+        '401':
+          description: 'Token inválido ou ausente'
+      security:
+        -
+          bearerAuth: []
+  /api/v1/recover:
+    put:
+      tags:
+        - Autenticação
+      summary: 'Atualização de senha'
+      description: 'Permite que o usuário atualize sua senha usando um token de recuperação.'
+      operationId: 1e6906d84277eab763bcc0b24db707ae
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              required:
+                - token
+                - password
+              properties:
+                token:
+                  type: string
+                  example: token_de_recuperacao_gerado
+                password:
+                  type: string
+                  example: NovaSenhaForte123!
+              type: object
+      responses:
+        '200':
+          description: 'Senha atualizada com sucesso'
+          content:
+            application/json:
+              schema:
+                properties:
+                  message: { type: string, example: 'Password updated successfully' }
+                type: object
+        '400':
+          description: 'Token ou senha não fornecidos'
+          content:
+            application/json:
+              schema:
+                properties:
+                  error: { type: string, example: 'Token and password required' }
+                type: object
+        '500':
+          description: 'Erro inesperado no servidor'
+          content:
+            application/json:
+              schema:
+                properties:
+                  error: { type: string, example: 'Internal server error' }
+                type: object
     post:
-      summary: Create
-      deprecated: false
-      description: ''
       tags:
-        - Plans
-      parameters: []
+        - Autenticação
+      summary: 'Recuperação de senha'
+      description: 'Permite que um usuário solicite a recuperação de senha através do seu email.'
+      operationId: cfcb64eeb4b59dfcb0b78b6e80c1feff
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              required:
+                - email
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: user@example.com
+              type: object
       responses:
         '200':
-          description: ''
-          headers: {}
-          schema:
-            type: object
-            properties: {}
-      security:
-        - bearer: []
-      produces:
-        - application/json
-  /api/v1/plans/1:
-    put:
-      summary: Update
-      deprecated: false
-      description: ''
-      tags:
-        - Plans
-      parameters: []
-      responses:
-        '200':
-          description: ''
-          headers: {}
-          schema:
-            type: object
-            properties: {}
-      security:
-        - bearer: []
-      produces:
-        - application/json
-    delete:
-      summary: Delete
-      deprecated: false
-      description: ''
-      tags:
-        - Plans
-      parameters: []
-      responses:
-        '200':
-          description: ''
-          headers: {}
-          schema:
-            type: object
-            properties: {}
-      security:
-        - bearer: []
-      produces:
-        - application/json
+          description: 'Recuperação de senha bem-sucedida'
+          content:
+            application/json:
+              schema:
+                properties:
+                  message: { type: string, example: 'Recovery successfully completed' }
+                  data: { type: object, example: '{"recovery_token": "xyz123abc"}' }
+                type: object
+        '400':
+          description: 'Email não fornecido ou inválido'
+          content:
+            application/json:
+              schema:
+                properties:
+                  error: { type: string, example: 'Email is required' }
+                type: object
+        '404':
+          description: 'Usuário não encontrado'
+          content:
+            application/json:
+              schema:
+                properties:
+                  error: { type: string, example: 'User not found' }
+                type: object
+        '500':
+          description: 'Erro inesperado no servidor'
+          content:
+            application/json:
+              schema:
+                properties:
+                  error: { type: string, example: 'Internal server error' }
+                type: object
+  /api/v1/customers:
     get:
-      summary: Get ID
-      deprecated: false
-      description: ''
       tags:
-        - Plans
+        - Clientes
+      summary: 'Listar todos os clientes'
+      description: 'Retorna uma lista de clientes com paginação'
+      operationId: cfef2f8160bbb288816b3fd50fbe699b
       parameters:
-        - name: body
-          in: body
+        -
+          name: sort_by
+          in: query
+          description: 'Campo para ordenação dos resultados'
+          required: false
           schema:
-            type: object
-            properties: {}
+            type: string
+            default: id
+            enum:
+              - id
+              - update
+        -
+          name: order
+          in: query
+          description: 'Ordem de ordenação (ASC ou DESC)'
+          required: false
+          schema:
+            type: string
+            default: ASC
+            enum:
+              - ASC
+              - DESC
+        -
+          name: s
+          in: query
+          description: 'Termo de busca para filtrar os clientes'
+          required: false
+          schema:
+            type: string
+        -
+          name: limite
+          in: query
+          description: 'Número de itens por página'
+          required: false
+          schema:
+            type: integer
+            default: 15
+            maximum: 200
+        -
+          name: page
+          in: query
+          description: 'Número da página para paginação'
+          required: false
+          schema:
+            type: integer
+            default: 1
       responses:
         '200':
-          description: ''
-          headers: {}
-          schema:
-            type: object
-            properties: {}
+          description: 'Lista de clientes'
+          content:
+            application/json:
+              schema:
+                properties:
+                  rows: { type: array, items: { type: object } }
+                  pagination: { type: object }
+                type: object
+        '401':
+          description: 'Token inválido ou ausente'
+        '500':
+          description: 'Erro interno do servidor'
       security:
-        - bearer: []
-      consumes:
-        - application/json
-      produces:
-        - application/json
-  /api/v1/plans:
-    get:
-      summary: Search
-      deprecated: false
-      description: ''
-      tags:
-        - Plans
-      parameters:
-        - name: body
-          in: body
-          schema:
-            type: object
-            properties: {}
-      responses:
-        '200':
-          description: ''
-          headers: {}
-          schema:
-            type: object
-            properties: {}
-      security:
-        - bearer: []
-      consumes:
-        - application/json
-      produces:
-        - application/json
-  /api/v1/subscriptions:
+        -
+          bearerAuth: []
     post:
-      summary: Create
-      deprecated: false
-      description: ''
       tags:
-        - Subscriptions
-      parameters: []
+        - Clientes
+      summary: 'Criar um novo cliente'
+      description: 'Cria um novo cliente com os dados fornecidos'
+      operationId: 42b0a2c98ea46de34f810bae6f78a3b2
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                name:
+                  type: string
+                email:
+                  type: string
+                phone:
+                  type: string
+                photo:
+                  type: string
+                  nullable: true
+                birthDate:
+                  type: string
+                  format: date
+                  nullable: true
+                doc:
+                  type: string
+                  nullable: true
+                generous:
+                  type: string
+                  nullable: true
+              type: object
+      responses:
+        '201':
+          description: 'Cliente criado com sucesso'
+        '401':
+          description: 'Token inválido ou ausente'
+        '403':
+          description: 'Usuário sem permissão'
+        '422':
+          description: 'Erro de validação'
+        '500':
+          description: 'Erro interno do servidor'
+      security:
+        -
+          bearerAuth: []
+  '/api/v1/customers/{id}':
+    get:
+      tags:
+        - Clientes
+      summary: 'Obter detalhes de um cliente'
+      description: 'Retorna os detalhes de um cliente específico'
+      operationId: 41841ce6e3057a13ab532a7ab1f96af6
+      parameters:
+        -
+          name: id
+          in: path
+          description: 'ID do cliente'
+          required: true
+          schema:
+            type: integer
       responses:
         '200':
-          description: ''
-          headers: {}
-          schema:
-            type: object
-            properties: {}
+          description: 'Detalhes do cliente'
+          content:
+            application/json:
+              schema:
+                properties:
+                  id: { type: integer, example: 1 }
+                  name: { type: string, example: 'John Doe' }
+                  photo: { type: string, example: null, nullable: true }
+                  email: { type: string, example: johndoe@example.com }
+                  phone: { type: string, example: '+1234567890' }
+                  doc: { type: string, example: '123456789' }
+                  generous: { type: string, example: M }
+                  birthDate: { type: string, format: date, example: '1990-01-01' }
+                  anamneses_count: { type: integer, example: 0 }
+                  anamneses: { type: array, items: { type: object } }
+                  timelines: { type: array, items: { type: object } }
+                type: object
+        '401':
+          description: 'Token inválido ou ausente'
+        '404':
+          description: 'Cliente não encontrado'
+        '500':
+          description: 'Erro interno do servidor'
       security:
-        - bearer: []
-      produces:
-        - application/json
-  /api/v1/subscriptions/id:
+        -
+          bearerAuth: []
     put:
-      summary: Update
-      deprecated: false
-      description: ''
       tags:
-        - Subscriptions
-      parameters: []
+        - Clientes
+      summary: 'Atualizar um cliente'
+      description: 'Atualiza os dados de um cliente existente'
+      operationId: 05e9e14aa12404b2a58d51869e1505f7
+      parameters:
+        -
+          name: id
+          in: path
+          description: 'ID do cliente'
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                name:
+                  type: string
+                email:
+                  type: string
+                phone:
+                  type: string
+                photo:
+                  type: string
+                  nullable: true
+                birthDate:
+                  type: string
+                  format: date
+                  nullable: true
+                doc:
+                  type: string
+                  nullable: true
+                generous:
+                  type: string
+                  nullable: true
+              type: object
       responses:
         '200':
-          description: ''
-          headers: {}
-          schema:
-            type: object
-            properties: {}
+          description: 'Cliente atualizado com sucesso'
+        '401':
+          description: 'Token inválido ou ausente'
+        '404':
+          description: 'Cliente não encontrado'
+        '422':
+          description: 'Erro de validação'
+        '500':
+          description: 'Erro interno do servidor'
       security:
-        - bearer: []
-      produces:
-        - application/json
+        -
+          bearerAuth: []
     delete:
-      summary: Delete
-      deprecated: false
-      description: ''
       tags:
-        - Subscriptions
-      parameters: []
-      responses:
-        '200':
-          description: ''
-          headers: {}
-          schema:
-            type: object
-            properties: {}
-      security:
-        - bearer: []
-      produces:
-        - application/json
-    get:
-      summary: list by id
-      deprecated: false
-      description: ''
-      tags:
-        - Subscriptions
+        - Clientes
+      summary: 'Excluir um cliente'
+      description: 'Exclui um cliente existente'
+      operationId: b96d5675d3de38142446856e2258f0fb
       parameters:
-        - name: body
-          in: body
+        -
+          name: id
+          in: path
+          description: 'ID do cliente'
+          required: true
           schema:
-            type: object
-            properties: {}
+            type: integer
       responses:
         '200':
-          description: ''
-          headers: {}
-          schema:
-            type: object
-            properties: {}
+          description: 'Cliente deletado com sucesso'
+        '401':
+          description: 'Token inválido ou ausente'
+        '404':
+          description: 'Cliente não encontrado'
+        '500':
+          description: 'Erro interno do servidor'
       security:
-        - bearer: []
-      consumes:
-        - application/json
-      produces:
-        - application/json
-  /api/v1/subscriptions/:
-    get:
-      summary: Search
-      deprecated: false
-      description: ''
-      tags:
-        - Subscriptions
-      parameters:
-        - name: s
-          in: query
-          description: ''
-          required: true
-          type: string
-          x-example: search
-        - name: order
-          in: query
-          description: ASC or DESC
-          required: true
-          type: string
-          x-example: ASC
-        - name: limite
-          in: query
-          description: 1 min / 500 Max
-          required: true
-          type: string
-          x-example: '10'
-        - name: page
-          in: query
-          description: Paginate return system
-          required: true
-          type: string
-          x-example: '1'
-        - name: body
-          in: body
-          schema:
-            type: object
-            properties: {}
-      responses:
-        '200':
-          description: ''
-          headers: {}
-          schema:
-            type: object
-            properties: {}
-      security:
-        - bearer: []
-      consumes:
-        - application/json
-      produces:
-        - application/json
-  /api/v1/config:
-    put:
-      summary: Config system
-      deprecated: false
-      description: ''
-      tags:
-        - System
-      parameters: []
-      responses:
-        '200':
-          description: ''
-          headers: {}
-          schema:
-            type: object
-            properties: {}
-      security: []
-      produces:
-        - application/json
+        -
+          bearerAuth: []
   /api/v1/support:
     post:
-      summary: Respond Support
-      deprecated: false
-      description: ''
       tags:
-        - Support
-      parameters:
-        - name: body
-          in: body
-          schema:
-            type: object
-            properties:
-              idSupport:
-                type: string
-              message:
-                type: string
-            required:
-              - idSupport
-              - message
+        - Suporte
+      summary: 'Criar novo chamado de suporte'
+      description: 'Este endpoint cria um novo chamado de suporte para um cliente. O ID do cliente é identificado internamente.'
+      operationId: d9ecd9442c1f8b5bb1244539385142c1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                name:
+                  description: 'Nome do cliente'
+                  type: string
+                subject:
+                  description: 'Assunto do chamado de suporte'
+                  type: string
+                type:
+                  description: 'Tipo do suporte (e.g., técnico, financeiro)'
+                  type: string
+                message:
+                  description: 'Mensagem detalhada do suporte'
+                  type: string
+                channel:
+                  description: 'Canal de origem do suporte (e.g., form, webhook)'
+                  type: string
+                  default: form
+              type: object
       responses:
-        '200':
-          description: ''
-          headers: {}
-          schema:
-            type: object
-            properties: {}
+        '201':
+          description: 'Chamado de suporte criado com sucesso'
+          content:
+            application/json:
+              schema:
+                properties:
+                  id: { description: 'ID do chamado criado', type: integer }
+                  protocol: { description: 'Protocolo do chamado', type: string }
+                type: object
+        '409':
+          description: 'Conflito: Chamado de suporte já existe'
+        '422':
+          description: 'Erro de validação'
+        '500':
+          description: 'Erro interno do servidor'
       security:
-        - bearer: []
-      consumes:
-        - application/json
-      produces:
-        - application/json
+        -
+          bearerAuth: []
+  /api/v1/tasks:
     get:
-      summary: Search
-      deprecated: false
-      description: ''
       tags:
-        - Support
-      parameters: []
-      responses:
-        '200':
-          description: ''
-          headers: {}
-          schema:
-            type: object
-            properties: {}
-      security:
-        - bearer: []
-      produces:
-        - application/json
-  /api/v1/crisp/first-chat:
-    post:
-      summary: Webhook Crisp First Chat
-      deprecated: false
-      description: ''
-      tags:
-        - Support
+        - Tasks
+      summary: 'Listar todas as tarefas'
+      description: 'Retorna uma lista de tarefas com paginação'
+      operationId: abf7108332c787d0b7e0686c9d87b45f
       parameters:
-        - name: body
-          in: body
+        -
+          name: sort_by
+          in: query
+          description: 'Campo para ordenação dos resultados'
+          required: false
           schema:
-            type: object
-            properties:
-              nickname:
-                type: string
-              session_id:
-                type: string
-              phone:
-                type: string
-              email:
-                type: string
-            required:
-              - nickname
-              - session_id
-              - phone
-              - email
+            type: string
+            default: id
+            enum:
+              - id
+              - order
+              - title
+        -
+          name: order
+          in: query
+          description: 'Ordem de ordenação (ASC ou DESC)'
+          required: false
+          schema:
+            type: string
+            default: ASC
+            enum:
+              - ASC
+              - DESC
+        -
+          name: s
+          in: query
+          description: 'Termo de busca para filtrar as tarefas'
+          required: false
+          schema:
+            type: string
+        -
+          name: limite
+          in: query
+          description: 'Número de itens por página'
+          required: false
+          schema:
+            type: integer
+            default: 15
+            maximum: 200
+        -
+          name: page
+          in: query
+          description: 'Número da página para paginação'
+          required: false
+          schema:
+            type: integer
+            default: 1
       responses:
         '200':
-          description: ''
-          headers: {}
+          description: 'Lista de tarefas'
+          content:
+            application/json:
+              schema:
+                properties:
+                  rows: { type: array, items: { type: object } }
+                  pagination: { type: object }
+                type: object
+        '401':
+          description: 'Token inválido ou ausente'
+        '500':
+          description: 'Erro interno do servidor'
+      security:
+        -
+          bearerAuth: []
+    post:
+      tags:
+        - Tasks
+      summary: 'Criar uma nova tarefa'
+      description: 'Cria uma nova tarefa com os dados fornecidos no corpo da requisição'
+      operationId: 5b095e7ad8d706d0bb06bc52b815729e
+      requestBody:
+        description: 'Dados da nova tarefa'
+        required: true
+        content:
+          application/json:
+            schema:
+              required:
+                - title
+              properties:
+                title:
+                  description: 'Título da tarefa'
+                  type: string
+                description:
+                  description: 'Descrição da tarefa (opcional)'
+                  type: string
+                status:
+                  description: 'Status da tarefa (pending/completed)'
+                  type: string
+                datetime:
+                  description: 'Data e hora da tarefa (opcional)'
+                  type: string
+                  format: date-time
+              type: object
+      responses:
+        '201':
+          description: 'Tarefa criada com sucesso'
+          content:
+            application/json:
+              schema:
+                type: object
+        '400':
+          description: 'Erro de validação'
+        '401':
+          description: 'Token inválido ou ausente'
+        '500':
+          description: 'Erro interno do servidor'
+      security:
+        -
+          bearerAuth: []
+  '/api/v1/tasks/{id}':
+    get:
+      tags:
+        - Tasks
+      summary: 'Obter detalhes de uma tarefa'
+      description: 'Retorna os detalhes de uma tarefa específica pelo ID'
+      operationId: c8e2eb0da0e833549ec7a85578366523
+      parameters:
+        -
+          name: id
+          in: path
+          description: 'ID da tarefa'
+          required: true
           schema:
+            type: integer
+      responses:
+        '200':
+          description: 'Detalhes da tarefa retornados com sucesso'
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: 'Token inválido ou ausente'
+        '404':
+          description: 'Tarefa não encontrada'
+        '500':
+          description: 'Erro interno do servidor'
+      security:
+        -
+          bearerAuth: []
+    put:
+      tags:
+        - Tasks
+      summary: 'Atualizar uma tarefa existente'
+      description: 'Atualiza os dados de uma tarefa específica pelo ID'
+      operationId: f72de6354be15bdb0913d50ef80d9ee6
+      parameters:
+        -
+          name: id
+          in: path
+          description: 'ID da tarefa'
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        description: 'Dados atualizados da tarefa'
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                title:
+                  description: 'Título da tarefa'
+                  type: string
+                description:
+                  description: 'Descrição da tarefa (opcional)'
+                  type: string
+                status:
+                  description: 'Status da tarefa (pending/completed)'
+                  type: string
+                datetime:
+                  description: 'Data e hora da tarefa (opcional)'
+                  type: string
+                  format: date-time
+              type: object
+      responses:
+        '200':
+          description: 'Tarefa atualizada com sucesso'
+          content:
+            application/json:
+              schema:
+                type: object
+        '400':
+          description: 'Erro de validação'
+        '401':
+          description: 'Token inválido ou ausente'
+        '404':
+          description: 'Tarefa não encontrada'
+        '500':
+          description: 'Erro interno do servidor'
+      security:
+        -
+          bearerAuth: []
+    delete:
+      tags:
+        - Tasks
+      summary: 'Deletar uma tarefa'
+      description: 'Deleta uma tarefa pelo ID'
+      operationId: 93e55838fb9c4ae5bc089da6160c28fb
+      parameters:
+        -
+          name: id
+          in: path
+          description: 'ID da tarefa'
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: 'Tarefa deletada com sucesso'
+        '401':
+          description: 'Token inválido ou ausente'
+        '404':
+          description: 'Tarefa não encontrada'
+        '500':
+          description: 'Erro interno do servidor'
+      security:
+        -
+          bearerAuth: []
+  /api/v1/tasks/order:
+    patch:
+      tags:
+        - Tasks
+      summary: 'Atualizar a ordem das tarefas'
+      description: 'Atualiza a ordem de exibição das tarefas'
+      operationId: 1b9ae54eaeb4416b0e1f388cbe2293eb
+      requestBody:
+        description: 'IDs e suas novas ordens'
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                properties:
+                  id: { description: 'ID da tarefa', type: integer }
+                  order: { description: 'Nova ordem da tarefa', type: integer }
+                type: object
+      responses:
+        '200':
+          description: 'Ordem das tarefas atualizada com sucesso'
+        '400':
+          description: 'Erro de validação'
+        '401':
+          description: 'Token inválido ou ausente'
+        '500':
+          description: 'Erro interno do servidor'
+      security:
+        -
+          bearerAuth: []
+  /api/v1/dashboard/appointments:
+    get:
+      tags:
+        - Usuários
+      summary: 'Relatórios de compromissos, cancelamentos, anamneses e retornos.'
+      description: 'Este endpoint retorna relatórios detalhados de compromissos, cancelamentos, anamneses e retornos do usuário autenticado. O relatório pode ser gerado por ano, mês, semana ou dia, dependendo dos parâmetros passados.'
+      operationId: c34783cc58a30ff9f2c9ec4217bd75af
+      parameters:
+        -
+          name: type
+          in: query
+          description: 'O tipo de relatório. Pode ser "annual", "monthly", "weekly", "daily" ou "compareWithLastWeek". compareWithLastWeek não respeita o campo start e end, pega a semana passada e a semana atual.'
+          required: true
+          schema:
+            type: string
+            enum:
+              - annual
+              - monthly
+              - weekly
+              - daily
+              - compareWithLastWeek
+        -
+          name: start
+          in: query
+          description: 'A data de início no formato YYYY-MM-DD. Exigido para relatórios que não sejam "compareWithLastWeek".'
+          required: false
+          schema:
+            type: string
+            format: date
+        -
+          name: end
+          in: query
+          description: 'A data de fim no formato YYYY-MM-DD. Exigido para relatórios que não sejam "compareWithLastWeek".'
+          required: false
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: 'Relatório gerado com sucesso'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  properties: { date: { description: 'Data ou intervalo de tempo no relatório (varia de acordo com o tipo de relatório)', type: string }, appointments: { description: 'Número de compromissos', type: integer }, cancelled: { description: 'Número de compromissos cancelados', type: integer }, anamneses: { description: 'Número de anamneses', type: integer }, return: { description: 'Número de retornos', type: integer } }
+                  type: object
+        '400':
+          description: 'Erro de validação'
+        '401':
+          description: 'Token inválido ou ausente'
+        '500':
+          description: 'Erro interno do servidor'
+      security:
+        -
+          bearerAuth: []
+  /api/v1/user/me:
+    get:
+      tags:
+        - Usuários
+      summary: 'Obter informações do usuário autenticado'
+      description: 'Retorna as informações do usuário autenticado usando JWT'
+      operationId: c01da61cb97dc778549fec55810d4b26
+      responses:
+        '200':
+          description: 'Informações do usuário'
+          content:
+            application/json:
+              schema:
+                properties:
+                  id: { type: integer, example: 1 }
+                  name: { type: string, example: 'John Doe' }
+                  email: { type: string, example: john.doe@example.com }
+                  photo: { type: string, example: 'https://example.com/photo.jpg' }
+                  role: { type: string, example: PROFISSIONAL }
+                  plan: { type: string, example: Premium }
+                  lang: { type: string, example: en }
+                  languages: { type: array, items: { type: string }, example: 'en, es' }
+                  description: { type: string, example: 'Experienced professional in healthcare.' }
+                  education: { type: string, example: 'PhD in Radiology' }
+                  department: { type: string, example: Radiology }
+                  social_networks: { type: object, example: 'https://linkedin.com/in/johndoe, https://instagram.com/in/johndoe' }
+                  company: { type: string, example: 'Medical Inc.' }
+                  birthdate: { type: string, format: date, example: '1985-08-15' }
+                  show_personal_chart_dashboard: { type: boolean, example: true }
+                  show_family_chart_dashboard: { type: boolean, example: false }
+                  show_friends_chart_dashboard: { type: boolean, example: true }
+                  show_appointments_chart_dashboard: { type: boolean, example: true }
+                  show_basic_info_dashboard: { type: boolean, example: true }
+                  receive_updates_email: { type: boolean, example: true }
+                  receive_updates_sms: { type: boolean, example: false }
+                  receive_updates_whatsapp: { type: boolean, example: true }
+                  receive_scheduling_reminders: { type: boolean, example: true }
+                  receive_cancellation_reminders: { type: boolean, example: true }
+                  statistics: { type: object, example: '{"total_appointments": 50, "cancelled_appointments": 5}' }
+                type: object
+        '401':
+          description: 'Não autorizado'
+      security:
+        -
+          bearerAuth: []
+    put:
+      tags:
+        - Usuários
+      summary: 'Atualizar informações do usuário autenticado'
+      description: 'Permite que o usuário autenticado atualize suas informações de perfil.'
+      operationId: 21ad00e8e69df5d13e16c2a1c9c190e8
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              required:
+                - name
+                - photo
+                - phone
+                - lang
+                - languages
+                - description
+                - education
+                - department
+                - company
+                - birthdate
+              properties:
+                name:
+                  type: string
+                  example: 'TERAPEUTA TP'
+                photo:
+                  type: string
+                  example: 'https://vinha-dev.s3.us-east-1.amazonaws.com/admin_geral/1/66c4784ed3f9f.png'
+                phone:
+                  type: string
+                  example: '+55 62 9 9999 9999'
+                lang:
+                  type: string
+                  example: pt-BR
+                languages:
+                  type: string
+                  example: 'En, Es, pt-BR'
+                description:
+                  type: string
+                  example: 'Coloque o texto que quiser'
+                education:
+                  type: string
+                  example: FACULDADE
+                department:
+                  type: string
+                  example: Radiology
+                social_networks:
+                  type: string
+                  example: social_networks
+                company:
+                  type: string
+                  example: company
+                birthdate:
+                  type: string
+                  format: date
+                  example: '1990-01-01'
+                show_personal_chart_dashboard:
+                  type: boolean
+                  example: true
+                show_family_chart_dashboard:
+                  type: boolean
+                  example: true
+                show_friends_chart_dashboard:
+                  type: boolean
+                  example: true
+                show_appointments_chart_dashboard:
+                  type: boolean
+                  example: true
+                show_basic_info_dashboard:
+                  type: boolean
+                  example: true
+                receive_updates_email:
+                  type: boolean
+                  example: true
+                receive_updates_sms:
+                  type: boolean
+                  example: true
+                receive_updates_whatsapp:
+                  type: boolean
+                  example: true
+                receive_scheduling_reminders:
+                  type: boolean
+                  example: true
+                receive_cancellation_reminders:
+                  type: boolean
+                  example: true
+              type: object
+      responses:
+        '200':
+          description: 'Perfil atualizado com sucesso'
+          content:
+            application/json:
+              schema:
+                properties:
+                  message: { type: string, example: 'Perfil atualizado com sucesso' }
+                  data: { type: object, example: '{"id": 1, "name": "TERAPEUTA TP", "email": "user@example.com"}' }
+                type: object
+        '400':
+          description: 'Erro de validação'
+          content:
+            application/json:
+              schema:
+                properties:
+                  error: { type: string, example: 'Nome e foto são obrigatórios' }
+                type: object
+        '500':
+          description: 'Erro inesperado no servidor'
+          content:
+            application/json:
+              schema:
+                properties:
+                  error: { type: string, example: 'Internal server error' }
+                type: object
+      security:
+        -
+          bearerAuth: []
+  /api/v1/webhook/greem:
+    post:
+      tags:
+        - Webhooks
+      summary: 'Cria um usuário com base nas informações do webhook recebido da GREEM'
+      description: "Processa o webhook da GREEM para criar ou atualizar um usuário com base nas informações da transação recebida.\n</br>O produto deverá ter sido cadastrado previamente informando o ID do produto da GREEM"
+      operationId: a62fd0c904f83eeb85d63ca2c498ce33
+      requestBody:
+        description: 'Dados do webhook da GREEM.'
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                currentStatus:
+                  description: 'Status atual da transação'
+                  type: string
+                  example: paid
+                client:
+                  description: 'Informações do cliente'
+                  properties: { email: { description: 'Email do cliente', type: string }, name: { description: 'Nome do cliente', type: string }, cellphone: { description: 'Telefone do cliente', type: string } }
+                  type: object
+                product:
+                  description: 'Informações do produto'
+                  properties: { id: { description: 'ID do produto', type: integer }, name: { description: 'Nome do produto', type: integer } }
+                  type: object
+              type: object
+      responses:
+        '201':
+          description: 'Transação processada com sucesso'
+          content:
+            application/json:
+              schema:
+                properties:
+                  message: { description: 'Mensagem de sucesso', type: string }
+                type: object
+        '400':
+          description: 'Requisição inválida'
+        '401':
+          description: 'Token inválido ou ausente'
+        '403':
+          description: 'Sem permissão para executar'
+        '500':
+          description: 'Erro interno do servidor'
+  /:
+    get:
+      tags:
+        - Status
+      summary: 'Verifica o status do sistema'
+      description: 'Retorna o status atual do sistema, versão, consumo de memória e tempo de carregamento.'
+      operationId: 5b8bbea83af70a9a8a53b270333d2915
+      responses:
+        '200':
+          description: 'Status atual do sistema'
+          content:
+            application/json:
+              schema:
+                properties:
+                  status: { type: string, example: development }
+                  version: { type: string, example: 1.0.0 }
+                  memory: { type: string, example: '13.08 MB' }
+                  load: { type: string, example: '0.0944 seconds' }
+                  docs: { type: string, example: 'https://api.multidesk.io/docs' }
+                type: object
+components:
+  schemas:
+    Customer:
+      properties:
+        id:
+          description: 'ID do cliente'
+          type: integer
+          example: 1
+        name:
+          description: 'Nome do cliente'
+          type: string
+          example: 'John Doe'
+        photo:
+          description: 'URL da foto do cliente'
+          type: string
+          example: null
+          nullable: true
+        email:
+          description: 'E-mail do cliente'
+          type: string
+          example: johndoe@example.com
+        phone:
+          description: 'Telefone do cliente'
+          type: string
+          example: '+1234567890'
+        doc:
+          description: 'Documento de identificação'
+          type: string
+          example: '123456789'
+        generous:
+          description: 'Gênero do cliente'
+          type: string
+          example: M
+        birthDate:
+          description: 'Data de nascimento'
+          type: string
+          format: date
+          example: '1990-01-01'
+        anamneses_count:
+          description: 'Número de anamneses associadas'
+          type: integer
+          example: 0
+        anamneses:
+          type: array
+          items:
+            properties:
+              id:
+                description: 'ID da anamnese'
+                type: integer
+              description:
+                description: 'Descrição da anamnese'
+                type: string
             type: object
-            properties: {}
-      security: []
-      consumes:
-        - application/json
-      produces:
-        - application/json
-swagger: '2.0'
-definitions: {}
-securityDefinitions:
-  bearer:
-    type: apiKey
-    name: Authorization
-    in: header
-x-components: {}
+        timelines:
+          type: array
+          items:
+            properties:
+              id:
+                description: 'ID da timeline'
+                type: integer
+              event:
+                description: 'Descrição do evento da timeline'
+                type: string
+            type: object
+      type: object
+    Task:
+      properties:
+        id:
+          description: 'ID da tarefa'
+          type: integer
+        title:
+          description: 'Título da tarefa'
+          type: string
+        description:
+          description: 'Descrição da tarefa'
+          type: string
+        status:
+          description: 'Status da tarefa (pending/completed)'
+          type: string
+        datetime:
+          description: 'Data e hora da tarefa'
+          type: string
+          format: date-time
+        order:
+          description: 'Ordem da tarefa'
+          type: integer
+      type: object
+    StatusResponse:
+      properties:
+        status:
+          type: string
+          example: development
+        version:
+          type: string
+          example: 1.0.0
+        memory:
+          type: string
+          example: '13.08 MB'
+        load:
+          type: string
+          example: '0.0944 seconds'
+        docs:
+          type: string
+          example: 'https://api.multidesk.io/docs'
+      type: object
+  securitySchemes:
+    bearerAuth:
+      type: http
+      bearerFormat: JWT
+      scheme: bearer
+tags:
+  -
+    name: Status
+    description: ''
+  -
+    name: Autenticação
+    description: 'Operações relacionadas à autenticação de usuários'
+  -
+    name: Usuários
+    description: 'Gerenciamento de usuários'
+  -
+    name: Agendamentos
+    description: 'Agendamento de atendimento'
+  -
+    name: Clientes
+    description: 'Gerenciamento de clientes'
+  -
+    name: Tasks
+    description: 'Tarefas para serem realizadas cadastradas pelo proprio usuário do sistema'
+  -
+    name: Anamneses
+    description: 'Gerenciamento de Anamneses'
+  -
+    name: Suporte
+    description: 'Gerenciamento de suporte'
+  -
+    name: Webhooks
+    description: 'Gerenciamento de Webhooks'
