@@ -1,0 +1,3184 @@
+info:
+  title: COMURT V2
+  description: ''
+  version: 1.0.0
+tags:
+  - name: Authentication
+  - name: Users
+  - name: Customers
+  - name: Appointments
+  - name: Anamneses
+  - name: Tasks
+  - name: Webhook
+  - name: Plans
+  - name: Subscriptions
+  - name: System
+  - name: Support
+paths:
+  /api/v1/login:
+    post:
+      summary: login
+      deprecated: false
+      description: >-
+        Renovação de sessão:
+
+        Se o tempo restante for menor que 600 segundos, o token é renovado
+        retornando o header X-Renewed-Token
+      tags:
+        - Authentication
+      parameters:
+        - name: body
+          in: body
+          schema:
+            type: object
+            properties:
+              email:
+                type: string
+                format: email
+              password:
+                type: string
+                format: pass
+            required:
+              - email
+              - password
+      responses:
+        '200':
+          description: ''
+          headers: {}
+          schema:
+            type: object
+            properties:
+              token:
+                type: string
+            required:
+              - token
+        '400':
+          description: ''
+          headers: {}
+          schema:
+            type: object
+            properties:
+              status:
+                type: integer
+              error:
+                type: integer
+              messages:
+                type: object
+                properties:
+                  email:
+                    type: string
+                  passwor:
+                    type: string
+                required:
+                  - email
+                  - passwor
+            required:
+              - status
+              - error
+              - messages
+      security: []
+      consumes:
+        - application/json
+      produces:
+        - application/json
+  /api/v1/magiclink:
+    post:
+      summary: Magic Link
+      deprecated: false
+      description: Limite de 5 requisições por hora nessa rota
+      tags:
+        - Authentication
+      parameters:
+        - name: body
+          in: body
+          schema:
+            type: object
+            properties:
+              magiclink:
+                type: string
+            required:
+              - magiclink
+      responses:
+        '200':
+          description: ''
+          headers: {}
+          schema:
+            type: object
+            properties:
+              token:
+                type: string
+            required:
+              - token
+        '404':
+          description: ''
+          headers: {}
+          schema:
+            type: object
+            properties:
+              status:
+                type: integer
+              error:
+                type: integer
+              messages:
+                type: object
+                properties:
+                  error:
+                    type: string
+                required:
+                  - error
+            required:
+              - status
+              - error
+              - messages
+      security: []
+      consumes:
+        - application/json
+      produces:
+        - application/json
+  /api/v1/recover:
+    post:
+      summary: recover
+      deprecated: false
+      description: ''
+      tags:
+        - Authentication
+      parameters:
+        - name: body
+          in: body
+          schema:
+            type: object
+            properties:
+              email:
+                type: string
+                format: email
+            required:
+              - email
+      responses:
+        '200':
+          description: ''
+          headers: {}
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+              data:
+                type: object
+                properties:
+                  name:
+                    type: string
+                  email:
+                    type: string
+                  token:
+                    type: string
+                  magicLink:
+                    type: string
+                  baseUrl:
+                    type: string
+                  company:
+                    type: string
+                required:
+                  - name
+                  - email
+                  - token
+                  - magicLink
+                  - baseUrl
+                  - company
+            required:
+              - message
+              - data
+        '400':
+          description: ''
+          headers: {}
+          schema:
+            type: object
+            properties:
+              status:
+                type: integer
+              error:
+                type: integer
+              messages:
+                type: object
+                properties:
+                  email:
+                    type: string
+                required:
+                  - email
+            required:
+              - status
+              - error
+              - messages
+      security: []
+      consumes:
+        - application/json
+      produces:
+        - application/json
+    put:
+      summary: Update password
+      deprecated: false
+      description: >-
+        Após a atualização ou criação de uma nova senha, o token de acesso é
+        automaticamente renovado.
+
+
+        As regras e validações sobre a complexidade e o tamanho da senha devem
+        ser implementadas no frontend, pois o backend aceita senhas de qualquer
+        tamanho ou nível de dificuldade.
+
+
+        Nenhuma senha é armazenada de forma descriptografada no banco de dados.
+        Não é possível verificar ou recuperar senhas anteriores, pois apenas um
+        hash seguro da senha é salvo. Esse hash é irreversível e não pode ser
+        convertido de volta para a senha original.
+      tags:
+        - Authentication
+      parameters:
+        - name: body
+          in: body
+          schema:
+            type: object
+            properties:
+              password:
+                type: string
+                format: password
+              token:
+                type: string
+            required:
+              - password
+              - token
+      responses:
+        '200':
+          description: ''
+          headers: {}
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+            required:
+              - message
+        '400':
+          description: ''
+          headers: {}
+          schema:
+            type: object
+            properties:
+              status:
+                type: integer
+              error:
+                type: integer
+              messages:
+                type: object
+                properties:
+                  error:
+                    type: string
+                required:
+                  - error
+            required:
+              - status
+              - error
+              - messages
+      security: []
+      consumes:
+        - application/json
+      produces:
+        - application/json
+  /api/v1/logout:
+    get:
+      summary: logout
+      deprecated: false
+      description: ''
+      tags:
+        - Authentication
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          headers: {}
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+            required:
+              - message
+        '401':
+          description: ''
+          headers: {}
+          schema:
+            type: object
+            properties:
+              status:
+                type: integer
+              error:
+                type: integer
+              messages:
+                type: object
+                properties:
+                  error:
+                    type: string
+                required:
+                  - error
+            required:
+              - status
+              - error
+              - messages
+      security:
+        - bearer: []
+      produces:
+        - application/json
+  /:
+    get:
+      summary: GET User
+      deprecated: false
+      description: ''
+      tags:
+        - Support
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          headers: {}
+          schema:
+            type: object
+            properties: {}
+      security: []
+      produces:
+        - application/json
+  /api/v1/user/me:
+    get:
+      summary: Me
+      deprecated: false
+      description: Dados de perfil
+      tags:
+        - Users
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          headers: {}
+          schema:
+            type: object
+            properties:
+              id:
+                type: string
+              name:
+                type: string
+              email:
+                type: string
+              photo:
+                type: string
+              role:
+                type: string
+              plan:
+                type: string
+              lang:
+                type: string
+              languages:
+                type: string
+              description:
+                type: string
+              education:
+                type: string
+              department:
+                type: string
+              social_networks:
+                type: string
+              company:
+                type: string
+              birthdate:
+                type: string
+              show_personal_chart_dashboard:
+                type: string
+              show_family_chart_dashboard:
+                type: string
+              show_friends_chart_dashboard:
+                type: string
+              show_appointments_chart_dashboard:
+                type: string
+              show_basic_info_dashboard:
+                type: string
+              receive_updates_email:
+                type: string
+              receive_updates_sms:
+                type: string
+              receive_updates_whatsapp:
+                type: string
+              receive_scheduling_reminders:
+                type: string
+              receive_cancellation_reminders:
+                type: string
+              statistics:
+                type: object
+                properties:
+                  appointments:
+                    type: string
+                  anamneses:
+                    type: string
+                  cancelled:
+                    type: 'null'
+                  appointments_period_comparison:
+                    type: integer
+                  anamneses_period_comparison:
+                    type: integer
+                  cancelled_period_comparison:
+                    type: integer
+                required:
+                  - appointments
+                  - anamneses
+                  - cancelled
+                  - appointments_period_comparison
+                  - anamneses_period_comparison
+                  - cancelled_period_comparison
+            required:
+              - id
+              - name
+              - email
+              - photo
+              - role
+              - plan
+              - lang
+              - languages
+              - description
+              - education
+              - department
+              - social_networks
+              - company
+              - birthdate
+              - show_personal_chart_dashboard
+              - show_family_chart_dashboard
+              - show_friends_chart_dashboard
+              - show_appointments_chart_dashboard
+              - show_basic_info_dashboard
+              - receive_updates_email
+              - receive_updates_sms
+              - receive_updates_whatsapp
+              - receive_scheduling_reminders
+              - receive_cancellation_reminders
+              - statistics
+      security:
+        - bearer: []
+      produces:
+        - application/json
+    put:
+      summary: Update
+      deprecated: false
+      description: >-
+        O id utilizado para atualizar os dados, é o id de usuário retornado na
+        sessão criada
+      tags:
+        - Users
+      parameters:
+        - name: body
+          in: body
+          schema:
+            type: object
+            properties:
+              name:
+                type: string
+              photo:
+                type: string
+              phone:
+                type: string
+              lang:
+                type: string
+              languages:
+                type: string
+              description:
+                type: string
+              education:
+                type: string
+              department:
+                type: string
+              social_networks:
+                type: string
+              company:
+                type: string
+              birthdate:
+                type: string
+              show_personal_chart_dashboard:
+                type: string
+              show_family_chart_dashboard:
+                type: string
+              show_friends_chart_dashboard:
+                type: string
+              show_appointments_chart_dashboard:
+                type: string
+              show_basic_info_dashboard:
+                type: string
+              receive_updates_email:
+                type: string
+              receive_updates_sms:
+                type: string
+              receive_updates_whatsapp:
+                type: string
+              receive_scheduling_reminders:
+                type: string
+              receive_cancellation_reminders:
+                type: string
+            required:
+              - name
+              - photo
+              - phone
+              - lang
+              - languages
+              - description
+              - education
+              - department
+              - social_networks
+              - company
+              - birthdate
+              - show_personal_chart_dashboard
+              - show_family_chart_dashboard
+              - show_friends_chart_dashboard
+              - show_appointments_chart_dashboard
+              - show_basic_info_dashboard
+              - receive_updates_email
+              - receive_updates_sms
+              - receive_updates_whatsapp
+              - receive_scheduling_reminders
+              - receive_cancellation_reminders
+      responses:
+        '200':
+          description: ''
+          headers: {}
+          schema:
+            type: object
+            properties:
+              id:
+                type: string
+              message:
+                type: string
+            required:
+              - id
+              - message
+      security:
+        - bearer: []
+      consumes:
+        - application/json
+      produces:
+        - application/json
+  /api/v1/dashboard/appointments:
+    get:
+      summary: statistics
+      deprecated: false
+      description: ''
+      tags:
+        - Users
+      parameters:
+        - name: type
+          in: query
+          description: >-
+            annual, monthly, weekly, daily, compareWithLastWeek.
+            compareWithLastWeek não respeita data start e end
+          required: true
+          type: string
+          x-example: monthly
+        - name: start
+          in: query
+          description: Obrigatório para todos os tipos
+          required: true
+          type: string
+          x-example: '2024-02-25'
+        - name: end
+          in: query
+          description: Obrigatório para todos os tipos
+          required: true
+          type: string
+          x-example: '2024-09-26'
+      responses:
+        '200':
+          description: ''
+          headers: {}
+          schema:
+            type: array
+            items:
+              type: object
+              properties:
+                date:
+                  type: string
+                appointments:
+                  type: integer
+                cancelled:
+                  type: integer
+                anamneses:
+                  type: integer
+                return:
+                  type: integer
+              required:
+                - date
+                - appointments
+                - cancelled
+                - anamneses
+                - return
+      security:
+        - bearer: []
+      produces:
+        - application/json
+  /api/v1/customers:
+    post:
+      summary: Create
+      deprecated: false
+      description: ''
+      tags:
+        - Customers
+      parameters:
+        - name: body
+          in: body
+          schema:
+            type: object
+            properties:
+              name:
+                type: string
+              email:
+                type: string
+                format: email
+              phone:
+                type: number
+                examples:
+                  - 5511912345678
+              photo:
+                type: string
+                x-nullable: true
+              birthDate:
+                type: string
+                format: date
+                examples:
+                  - '2000-01-01'
+              doc:
+                type: string
+              generous:
+                type: string
+                enum:
+                  - male
+                  - female
+                  - unspecified
+                  - non-binary
+                  - gender fluid
+                  - agender
+                  - other
+              type:
+                type: string
+                enum:
+                  - family
+                  - friend
+                  - professional
+            required:
+              - name
+              - phone
+              - birthDate
+              - doc
+              - generous
+              - type
+              - email
+              - photo
+      responses:
+        '201':
+          description: ''
+          headers: {}
+          schema:
+            type: object
+            properties:
+              id:
+                type: integer
+              message:
+                type: string
+            required:
+              - id
+              - message
+        '400':
+          description: ''
+          headers: {}
+          schema:
+            type: object
+            properties:
+              status:
+                type: integer
+              error:
+                type: integer
+              messages:
+                type: object
+                properties:
+                  error:
+                    type: string
+                required:
+                  - error
+            required:
+              - status
+              - error
+              - messages
+        '409':
+          description: ''
+          headers: {}
+          schema:
+            type: object
+            properties:
+              status:
+                type: integer
+              error:
+                type: integer
+              messages:
+                type: object
+                properties:
+                  error:
+                    type: string
+                required:
+                  - error
+            required:
+              - status
+              - error
+              - messages
+      security:
+        - bearer: []
+      consumes:
+        - application/json
+      produces:
+        - application/json
+  /api/v1/customers/2:
+    put:
+      summary: Update
+      deprecated: false
+      description: ''
+      tags:
+        - Customers
+      parameters:
+        - name: body
+          in: body
+          schema:
+            type: object
+            properties:
+              name:
+                type: string
+              email:
+                type: string
+              phone:
+                type: string
+              photo:
+                type: 'null'
+              birthDate:
+                type: string
+              doc:
+                type: string
+              generous:
+                type: string
+              type:
+                type: string
+            required:
+              - name
+              - email
+              - phone
+              - photo
+              - birthDate
+              - doc
+              - generous
+              - type
+      responses:
+        '200':
+          description: ''
+          headers: {}
+          schema:
+            type: object
+            properties:
+              id:
+                type: string
+              message:
+                type: string
+            required:
+              - id
+              - message
+      security:
+        - bearer: []
+      consumes:
+        - application/json
+      produces:
+        - application/json
+    delete:
+      summary: Delete
+      deprecated: false
+      description: ''
+      tags:
+        - Customers
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          headers: {}
+          schema:
+            type: object
+            properties: {}
+      security:
+        - bearer: []
+      produces:
+        - application/json
+  /api/v1/customers/:
+    get:
+      summary: Search
+      deprecated: false
+      description: ''
+      tags:
+        - Customers
+      parameters:
+        - name: s
+          in: query
+          description: id, name, email, phone, doc
+          required: true
+          type: string
+          x-example: ''
+        - name: sort_by
+          in: query
+          description: id, name, email, phone, doc, type
+          required: true
+          type: string
+          x-example: id
+        - name: order
+          in: query
+          description: ASC, DESC
+          required: true
+          enum:
+            - ASC
+            - DESC
+          type: string
+          x-example: DESC
+        - name: limite
+          in: query
+          description: '500'
+          required: true
+          type: integer
+          x-example: 500
+        - name: page
+          in: query
+          description: '1'
+          required: true
+          type: integer
+          x-example: 0
+        - name: generous
+          in: query
+          description: male, female, unspecified, non-binary, gender fluid, agender, other
+          required: true
+          enum:
+            - male
+            - female
+            - unspecified
+            - non-binary
+            - gender fluid
+            - agender
+            - other
+          type: string
+          x-example: male
+        - name: type
+          in: query
+          description: family, friend, professional
+          required: true
+          enum:
+            - family
+            - friend
+            - ' professional'
+          type: string
+          x-example: ''
+        - name: body
+          in: body
+          schema:
+            type: object
+            properties: {}
+      responses:
+        '200':
+          description: ''
+          headers: {}
+          schema:
+            type: object
+            properties:
+              rows:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                    idUser:
+                      type: string
+                    name:
+                      type: string
+                    photo:
+                      type: 'null'
+                    email:
+                      type: string
+                    phone:
+                      type: string
+                    doc:
+                      type: string
+                      x-nullable: true
+                    generous:
+                      type: string
+                    type:
+                      type: string
+                    birthDate:
+                      type: string
+                      x-nullable: true
+                    created_at:
+                      type: string
+                    updated_at:
+                      type: string
+                    deleted_at:
+                      type: 'null'
+                    anamneses_count:
+                      type: string
+                  required:
+                    - id
+                    - idUser
+                    - name
+                    - photo
+                    - email
+                    - phone
+                    - doc
+                    - generous
+                    - type
+                    - birthDate
+                    - created_at
+                    - updated_at
+                    - deleted_at
+                    - anamneses_count
+              params:
+                type: object
+                properties:
+                  s:
+                    type: string
+                  sort_by:
+                    type: string
+                  order:
+                    type: string
+                  limite:
+                    type: string
+                  page:
+                    type: string
+                  generous:
+                    type: string
+                  type:
+                    type: string
+                required:
+                  - s
+                  - sort_by
+                  - order
+                  - limite
+                  - page
+                  - generous
+                  - type
+              pagination:
+                type: object
+                properties:
+                  current_page:
+                    type: integer
+                  total_pages:
+                    type: integer
+                  total_items:
+                    type: integer
+                  items_per_page:
+                    type: integer
+                  prev_page:
+                    type: 'null'
+                  next_page:
+                    type: 'null'
+                required:
+                  - current_page
+                  - total_pages
+                  - total_items
+                  - items_per_page
+                  - prev_page
+                  - next_page
+            required:
+              - rows
+              - params
+              - pagination
+      security:
+        - bearer: []
+      consumes:
+        - application/json
+      produces:
+        - application/json
+  /api/v1/customers/3:
+    get:
+      summary: Get ID
+      deprecated: false
+      description: ''
+      tags:
+        - Customers
+      parameters:
+        - name: body
+          in: body
+          schema:
+            type: object
+            properties: {}
+      responses:
+        '200':
+          description: ''
+          headers: {}
+          schema:
+            type: object
+            properties:
+              id:
+                type: string
+              name:
+                type: string
+              photo:
+                type: 'null'
+              email:
+                type: string
+              phone:
+                type: string
+              doc:
+                type: string
+              generous:
+                type: string
+              birthDate:
+                type: string
+              anamneses_count:
+                type: string
+              appointments:
+                type: array
+                items:
+                  type: string
+              anamneses:
+                type: array
+                items:
+                  type: string
+              timelines:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                    idUser:
+                      type: string
+                    idCustomer:
+                      type: string
+                    type:
+                      type: string
+                    description:
+                      type: string
+                    url:
+                      type: string
+                    ico:
+                      type: string
+                    observation:
+                      type: 'null'
+                    created_at:
+                      type: string
+                    updated_at:
+                      type: string
+                    deleted_at:
+                      type: 'null'
+            required:
+              - id
+              - name
+              - photo
+              - email
+              - phone
+              - doc
+              - generous
+              - birthDate
+              - anamneses_count
+              - appointments
+              - anamneses
+              - timelines
+        '404':
+          description: ''
+          headers: {}
+          schema:
+            type: object
+            properties:
+              status:
+                type: integer
+              error:
+                type: integer
+              messages:
+                type: object
+                properties:
+                  error:
+                    type: string
+                required:
+                  - error
+            required:
+              - status
+              - error
+              - messages
+      security:
+        - bearer: []
+      consumes:
+        - application/json
+      produces:
+        - application/json
+  /api/v1/appointments:
+    post:
+      summary: Create
+      deprecated: false
+      description: ''
+      tags:
+        - Appointments
+      parameters:
+        - name: body
+          in: body
+          schema:
+            type: object
+            properties:
+              id_customer:
+                type: integer
+              date:
+                type: string
+              type:
+                type: string
+            required:
+              - id_customer
+              - date
+              - type
+      responses:
+        '200':
+          description: ''
+          headers: {}
+          schema:
+            type: object
+            properties: {}
+      security:
+        - bearer: []
+      consumes:
+        - application/json
+      produces:
+        - application/json
+    get:
+      summary: Search
+      deprecated: false
+      description: |-
+        **Resposta**
+
+        ``` json
+        {
+            "rows": [
+                {
+                    "id_appointment": "7",
+                    "appointment": "2024-09-14 17:30:00",
+                    "status": "pending",
+                    "id_customer": "2",
+                    "name_customer": "Demo TP",
+                    "id_user": "2",
+                    "name_user": "Demo TP"
+                }
+            ],
+            "params": {
+                "s": "",
+                "order": "ASC",
+                "sort_by": "id",
+                "limite": "10",
+                "page": "1",
+                "start": "2024-09-01 00:00:00",
+                "end": "2024-09-30 23:59:59",
+                "status": "pending" //pending, completed, cancelled
+            },
+            "dateRange": {
+                "start": "2024-09-01 00:00:00",
+                "end": "2024-09-30 23:59:59"
+            },
+            "pagination": {
+                "current_page": 1,
+                "total_pages": 1,
+                "total_items": 1,
+                "items_per_page": 10,
+                "prev_page": null,
+                "next_page": null
+            }
+        }
+
+         ```
+      tags:
+        - Appointments
+      parameters:
+        - name: s
+          in: query
+          description: 'Termos de busca: Nome, Email, Telefone, id'
+          required: false
+          type: string
+          x-example: ''
+        - name: order
+          in: query
+          description: asc ou desc
+          required: false
+          type: string
+          x-example: asc
+        - name: sort_by
+          in: query
+          description: id, date, status
+          required: false
+          type: string
+          x-example: id
+        - name: page
+          in: query
+          description: Paginate return system
+          required: false
+          type: string
+          x-example: ''
+        - name: start
+          in: query
+          description: ''
+          required: false
+          type: string
+          x-example: '2024-09-30 00:00:00'
+        - name: end
+          in: query
+          description: ''
+          required: false
+          type: string
+          x-example: '2024-09-30 23:59:59'
+        - name: status
+          in: query
+          description: pending, completed, cancelled
+          required: false
+          type: string
+          x-example: ''
+        - name: type
+          in: query
+          description: consultation, anamnesis, return
+          required: false
+          type: string
+          x-example: ''
+        - name: limit
+          in: query
+          description: ''
+          required: false
+          type: string
+          x-example: '10'
+        - name: body
+          in: body
+          schema:
+            type: object
+            properties: {}
+      responses:
+        '200':
+          description: ''
+          headers: {}
+          schema:
+            type: object
+            properties: {}
+      security:
+        - bearer: []
+      consumes:
+        - application/json
+      produces:
+        - application/json
+  /api/v1/appointments/2:
+    put:
+      summary: Update
+      deprecated: false
+      description: ''
+      tags:
+        - Appointments
+      parameters:
+        - name: body
+          in: body
+          schema:
+            type: object
+            properties:
+              status:
+                type: string
+              type:
+                type: string
+              observation:
+                type: string
+            required:
+              - status
+              - type
+              - observation
+      responses:
+        '200':
+          description: ''
+          headers: {}
+          schema:
+            type: object
+            properties: {}
+      security:
+        - bearer: []
+      consumes:
+        - application/json
+      produces:
+        - application/json
+  /api/v1/appointments/28:
+    delete:
+      summary: Delete
+      deprecated: false
+      description: ''
+      tags:
+        - Appointments
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          headers: {}
+          schema:
+            type: object
+            properties: {}
+      security:
+        - bearer: []
+      produces:
+        - application/json
+  /api/v1/appointments/1:
+    get:
+      summary: Get ID
+      deprecated: false
+      description: |-
+        Resposta da pesquisa por ID
+
+        ``` json
+        {
+            "id_appointment": "1",
+            "date": "2024-09-17 20:30:00",
+            "status": "pending",
+            "id_customer": "1",
+            "name_customer": "Demo TP",
+            "type_customer": "myself",
+            "email_customer": "tp@conect.app",
+            "id_user": "2",
+            "name_user": "Demo TP"
+        }
+
+         ```
+      tags:
+        - Appointments
+      parameters:
+        - name: body
+          in: body
+          schema:
+            type: object
+            properties: {}
+      responses:
+        '200':
+          description: ''
+          headers: {}
+          schema:
+            type: object
+            properties: {}
+      security:
+        - bearer: []
+      consumes:
+        - application/json
+      produces:
+        - application/json
+  /api/v1/anamneses:
+    post:
+      summary: Create
+      deprecated: false
+      description: ''
+      tags:
+        - Anamneses
+      parameters:
+        - name: body
+          in: body
+          schema:
+            type: object
+            properties:
+              idCustomer:
+                type: integer
+              idAppointment:
+                type: integer
+              mentalDesequilibrio:
+                type: string
+              mentalPercentual:
+                type: integer
+              emocionalDesequilibrio:
+                type: string
+              espiritualDesequilibrio:
+                type: string
+              espiritualPercentual:
+                type: integer
+              fisicoDesequilibrio:
+                type: string
+              fisicoPercentual:
+                type: integer
+              chakraCoronarioDesequilibrio:
+                type: string
+              chakraCoronarioPercentual:
+                type: integer
+              chakraCoronarioAtividade:
+                type: string
+              chakraCoronarioOrgao:
+                type: string
+              chakraFrontalDesequilibrio:
+                type: string
+              chakraFrontalPercentual:
+                type: integer
+              chakraFrontalAtividade:
+                type: string
+              chakraFrontalOrgao:
+                type: string
+              chakraLaringeoDesequilibrio:
+                type: string
+              chakraLaringeoPercentual:
+                type: integer
+              chakraLaringeoAtividade:
+                type: string
+              chakraLaringeoOrgao:
+                type: string
+              chakraCardiacoDesequilibrio:
+                type: string
+              chakraCardiacoPercentual:
+                type: integer
+              chakraCardiacoAtividade:
+                type: string
+              chakraCardiacoOrgao:
+                type: string
+              chakraPlexoSolarDesequilibrio:
+                type: string
+              chakraPlexoSolarPercentual:
+                type: integer
+              chakraPlexoSolarAtividade:
+                type: string
+              chakraPlexoSolarOrgao:
+                type: string
+              chakraSacroDesequilibrio:
+                type: string
+              chakraSacroPercentual:
+                type: integer
+              chakraSacroAtividade:
+                type: string
+              chakraSacroOrgao:
+                type: string
+              chakraBasicoDesequilibrio:
+                type: string
+              chakraBasicoPercentual:
+                type: integer
+              chakraBasicoAtividade:
+                type: string
+              chakraBasicoOrgao:
+                type: string
+              tamanhoAura:
+                type: integer
+              auraProtection:
+                type: integer
+              tamanhoAuraComments:
+                type: string
+              tamanhoAbertura:
+                type: integer
+              tamanhoAberturaComments:
+                type: string
+              corFalta:
+                type: array
+                items:
+                  type: string
+              corExcesso:
+                type: array
+                items:
+                  type: string
+              corBase:
+                type: array
+                items:
+                  type: string
+              energia:
+                type: integer
+              energiaComments:
+                type: string
+              areasFamiliar:
+                type: integer
+              areasAfetivo:
+                type: integer
+              areasProfissional:
+                type: integer
+              areasFinanceiro:
+                type: integer
+              areasMissao:
+                type: integer
+            required:
+              - idCustomer
+              - idAppointment
+              - mentalDesequilibrio
+              - mentalPercentual
+              - emocionalDesequilibrio
+              - espiritualDesequilibrio
+              - espiritualPercentual
+              - fisicoDesequilibrio
+              - fisicoPercentual
+              - chakraCoronarioDesequilibrio
+              - chakraCoronarioPercentual
+              - chakraCoronarioAtividade
+              - chakraCoronarioOrgao
+              - chakraFrontalDesequilibrio
+              - chakraFrontalPercentual
+              - chakraFrontalAtividade
+              - chakraFrontalOrgao
+              - chakraLaringeoDesequilibrio
+              - chakraLaringeoPercentual
+              - chakraLaringeoAtividade
+              - chakraLaringeoOrgao
+              - chakraCardiacoDesequilibrio
+              - chakraCardiacoPercentual
+              - chakraCardiacoAtividade
+              - chakraCardiacoOrgao
+              - chakraPlexoSolarDesequilibrio
+              - chakraPlexoSolarPercentual
+              - chakraPlexoSolarAtividade
+              - chakraPlexoSolarOrgao
+              - chakraSacroDesequilibrio
+              - chakraSacroPercentual
+              - chakraSacroAtividade
+              - chakraSacroOrgao
+              - chakraBasicoDesequilibrio
+              - chakraBasicoPercentual
+              - chakraBasicoAtividade
+              - chakraBasicoOrgao
+              - tamanhoAura
+              - auraProtection
+              - tamanhoAuraComments
+              - tamanhoAbertura
+              - tamanhoAberturaComments
+              - corFalta
+              - corExcesso
+              - corBase
+              - energia
+              - energiaComments
+              - areasFamiliar
+              - areasAfetivo
+              - areasProfissional
+              - areasFinanceiro
+              - areasMissao
+      responses:
+        '200':
+          description: ''
+          headers: {}
+          schema:
+            type: object
+            properties: {}
+      security:
+        - bearer: []
+      consumes:
+        - application/json
+      produces:
+        - application/json
+    get:
+      summary: Search
+      deprecated: false
+      description: ''
+      tags:
+        - Anamneses
+      parameters:
+        - name: sort_by
+          in: query
+          description: id, created_at, updated_at
+          required: false
+          type: string
+          x-example: id
+        - name: s
+          in: query
+          description: ''
+          required: false
+          type: string
+          x-example: PH
+        - name: order
+          in: query
+          description: ASC or DESC
+          required: false
+          type: string
+          x-example: ASC
+        - name: limite
+          in: query
+          description: 1 min / 500 Max
+          required: false
+          type: string
+          x-example: '1000'
+        - name: page
+          in: query
+          description: Paginate return system
+          required: false
+          type: string
+          x-example: '1'
+      responses:
+        '200':
+          description: ''
+          headers: {}
+          schema:
+            type: object
+            properties: {}
+      security:
+        - bearer: []
+      produces:
+        - application/json
+  /api/v1/anamneses/15:
+    put:
+      summary: Update
+      deprecated: false
+      description: ''
+      tags:
+        - Anamneses
+      parameters:
+        - name: body
+          in: body
+          schema:
+            type: object
+            properties:
+              mentalDesequilibrio:
+                type: string
+              mentalPercentual:
+                type: integer
+              emocionalDesequilibrio:
+                type: string
+              emocionalPercentual:
+                type: integer
+              espiritualDesequilibrio:
+                type: string
+              espiritualPercentual:
+                type: integer
+              fisicoDesequilibrio:
+                type: string
+              fisicoPercentual:
+                type: integer
+              chakraCoronarioDesequilibrio:
+                type: string
+              chakraCoronarioPercentual:
+                type: integer
+              chakraCoronarioAtividade:
+                type: string
+              chakraCoronarioOrgao:
+                type: string
+              chakraFrontalDesequilibrio:
+                type: string
+              chakraFrontalPercentual:
+                type: integer
+              chakraFrontalAtividade:
+                type: string
+              chakraFrontalOrgao:
+                type: string
+              chakraLaringeoDesequilibrio:
+                type: string
+              chakraLaringeoPercentual:
+                type: integer
+              chakraLaringeoAtividade:
+                type: string
+              chakraLaringeoOrgao:
+                type: string
+              chakraCardiacoDesequilibrio:
+                type: string
+              chakraCardiacoPercentual:
+                type: integer
+              chakraCardiacoAtividade:
+                type: string
+              chakraCardiacoOrgao:
+                type: string
+              chakraPlexoSolarDesequilibrio:
+                type: string
+              chakraPlexoSolarPercentual:
+                type: integer
+              chakraPlexoSolarAtividade:
+                type: string
+              chakraPlexoSolarOrgao:
+                type: string
+              chakraSacroDesequilibrio:
+                type: string
+              chakraSacroPercentual:
+                type: integer
+              chakraSacroAtividade:
+                type: string
+              chakraSacroOrgao:
+                type: string
+              chakraBasicoDesequilibrio:
+                type: string
+              chakraBasicoPercentual:
+                type: integer
+              chakraBasicoAtividade:
+                type: string
+              chakraBasicoOrgao:
+                type: string
+              tamanhoAura:
+                type: integer
+              tamanhoAbertura:
+                type: integer
+              auraProtection:
+                type: integer
+              corFalta:
+                type: array
+                items:
+                  type: string
+              corExcesso:
+                type: array
+                items:
+                  type: string
+              energia:
+                type: integer
+              areasFamiliar:
+                type: string
+              areasAfetivo:
+                type: string
+              areasProfissional:
+                type: string
+              areasFinanceiro:
+                type: string
+              areasMissao:
+                type: string
+            required:
+              - mentalDesequilibrio
+              - mentalPercentual
+              - emocionalDesequilibrio
+              - emocionalPercentual
+              - espiritualDesequilibrio
+              - espiritualPercentual
+              - fisicoDesequilibrio
+              - fisicoPercentual
+              - chakraCoronarioDesequilibrio
+              - chakraCoronarioPercentual
+              - chakraCoronarioAtividade
+              - chakraCoronarioOrgao
+              - chakraFrontalDesequilibrio
+              - chakraFrontalPercentual
+              - chakraFrontalAtividade
+              - chakraFrontalOrgao
+              - chakraLaringeoDesequilibrio
+              - chakraLaringeoPercentual
+              - chakraLaringeoAtividade
+              - chakraLaringeoOrgao
+              - chakraCardiacoDesequilibrio
+              - chakraCardiacoPercentual
+              - chakraCardiacoAtividade
+              - chakraCardiacoOrgao
+              - chakraPlexoSolarDesequilibrio
+              - chakraPlexoSolarPercentual
+              - chakraPlexoSolarAtividade
+              - chakraPlexoSolarOrgao
+              - chakraSacroDesequilibrio
+              - chakraSacroPercentual
+              - chakraSacroAtividade
+              - chakraSacroOrgao
+              - chakraBasicoDesequilibrio
+              - chakraBasicoPercentual
+              - chakraBasicoAtividade
+              - chakraBasicoOrgao
+              - tamanhoAura
+              - tamanhoAbertura
+              - auraProtection
+              - corFalta
+              - corExcesso
+              - energia
+              - areasFamiliar
+              - areasAfetivo
+              - areasProfissional
+              - areasFinanceiro
+              - areasMissao
+      responses:
+        '200':
+          description: ''
+          headers: {}
+          schema:
+            type: object
+            properties: {}
+      security:
+        - bearer: []
+      consumes:
+        - application/json
+      produces:
+        - application/json
+    delete:
+      summary: Delete
+      deprecated: false
+      description: ''
+      tags:
+        - Anamneses
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          headers: {}
+          schema:
+            type: object
+            properties: {}
+      security:
+        - bearer: []
+      produces:
+        - application/json
+  /api/v1/anamneses/58:
+    get:
+      summary: Get ID
+      deprecated: false
+      description: ''
+      tags:
+        - Anamneses
+      parameters:
+        - name: body
+          in: body
+          schema:
+            type: object
+            properties: {}
+      responses:
+        '200':
+          description: ''
+          headers: {}
+          schema:
+            type: object
+            properties: {}
+      security:
+        - bearer: []
+      consumes:
+        - application/json
+      produces:
+        - application/json
+  /anamnese/pbzt0arxehw3klju2gfi:
+    get:
+      summary: Rota aberta para consulta do cliente
+      deprecated: false
+      description: ''
+      tags:
+        - Anamneses
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          headers: {}
+          schema:
+            type: object
+            properties: {}
+      security: []
+      produces:
+        - application/json
+  /api/v1/anamneses/comparation:
+    get:
+      summary: Comparação
+      deprecated: false
+      description: ''
+      tags:
+        - Anamneses
+      parameters:
+        - name: baseId
+          in: query
+          description: ''
+          required: true
+          type: string
+          x-example: '1'
+        - name: comparationId
+          in: query
+          description: ''
+          required: true
+          type: string
+          x-example: '2'
+      responses:
+        '200':
+          description: ''
+          headers: {}
+          schema:
+            type: object
+            properties:
+              comparisons:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                    id_customer:
+                      type: string
+                    create:
+                      type: string
+                    differences:
+                      type: object
+                      properties:
+                        mental_imbalance:
+                          type: object
+                          properties:
+                            base_value:
+                              type: string
+                            current_value:
+                              type: string
+                            difference:
+                              type: 'null'
+                          required:
+                            - base_value
+                            - current_value
+                            - difference
+                        mental_percentage:
+                          type: object
+                          properties:
+                            base_value:
+                              type: integer
+                            current_value:
+                              type: integer
+                            difference:
+                              type: integer
+                          required:
+                            - base_value
+                            - current_value
+                            - difference
+                        emotional_imbalance:
+                          type: object
+                          properties:
+                            base_value:
+                              type: string
+                            current_value:
+                              type: string
+                            difference:
+                              type: 'null'
+                          required:
+                            - base_value
+                            - current_value
+                            - difference
+                        emotional_percentage:
+                          type: object
+                          properties:
+                            base_value:
+                              type: integer
+                            current_value:
+                              type: integer
+                            difference:
+                              type: integer
+                          required:
+                            - base_value
+                            - current_value
+                            - difference
+                        spiritual_imbalance:
+                          type: object
+                          properties:
+                            base_value:
+                              type: string
+                            current_value:
+                              type: string
+                            difference:
+                              type: 'null'
+                          required:
+                            - base_value
+                            - current_value
+                            - difference
+                        spiritual_percentage:
+                          type: object
+                          properties:
+                            base_value:
+                              type: integer
+                            current_value:
+                              type: integer
+                            difference:
+                              type: integer
+                          required:
+                            - base_value
+                            - current_value
+                            - difference
+                        physical_imbalance:
+                          type: object
+                          properties:
+                            base_value:
+                              type: string
+                            current_value:
+                              type: string
+                            difference:
+                              type: 'null'
+                          required:
+                            - base_value
+                            - current_value
+                            - difference
+                        physical_percentage:
+                          type: object
+                          properties:
+                            base_value:
+                              type: integer
+                            current_value:
+                              type: integer
+                            difference:
+                              type: integer
+                          required:
+                            - base_value
+                            - current_value
+                            - difference
+                        coronary_chakra_imbalance:
+                          type: object
+                          properties:
+                            base_value:
+                              type: string
+                            current_value:
+                              type: string
+                            difference:
+                              type: 'null'
+                          required:
+                            - base_value
+                            - current_value
+                            - difference
+                        coronary_chakra_percentage:
+                          type: object
+                          properties:
+                            base_value:
+                              type: integer
+                            current_value:
+                              type: integer
+                            difference:
+                              type: integer
+                          required:
+                            - base_value
+                            - current_value
+                            - difference
+                        coronary_chakra_activity:
+                          type: object
+                          properties:
+                            base_value:
+                              type: string
+                            current_value:
+                              type: string
+                            difference:
+                              type: 'null'
+                          required:
+                            - base_value
+                            - current_value
+                            - difference
+                        coronary_chakra_affects_organ:
+                          type: object
+                          properties:
+                            base_value:
+                              type: string
+                            current_value:
+                              type: string
+                            difference:
+                              type: 'null'
+                          required:
+                            - base_value
+                            - current_value
+                            - difference
+                        frontal_chakra_imbalance:
+                          type: object
+                          properties:
+                            base_value:
+                              type: string
+                            current_value:
+                              type: string
+                            difference:
+                              type: 'null'
+                          required:
+                            - base_value
+                            - current_value
+                            - difference
+                        frontal_chakra_percentage:
+                          type: object
+                          properties:
+                            base_value:
+                              type: integer
+                            current_value:
+                              type: integer
+                            difference:
+                              type: integer
+                          required:
+                            - base_value
+                            - current_value
+                            - difference
+                        frontal_chakra_activity:
+                          type: object
+                          properties:
+                            base_value:
+                              type: string
+                            current_value:
+                              type: string
+                            difference:
+                              type: 'null'
+                          required:
+                            - base_value
+                            - current_value
+                            - difference
+                        frontal_chakra_affects_organ:
+                          type: object
+                          properties:
+                            base_value:
+                              type: string
+                            current_value:
+                              type: string
+                            difference:
+                              type: 'null'
+                          required:
+                            - base_value
+                            - current_value
+                            - difference
+                        laryngeal_chakra_imbalance:
+                          type: object
+                          properties:
+                            base_value:
+                              type: string
+                            current_value:
+                              type: string
+                            difference:
+                              type: 'null'
+                          required:
+                            - base_value
+                            - current_value
+                            - difference
+                        laryngeal_chakra_percentage:
+                          type: object
+                          properties:
+                            base_value:
+                              type: integer
+                            current_value:
+                              type: integer
+                            difference:
+                              type: integer
+                          required:
+                            - base_value
+                            - current_value
+                            - difference
+                        laryngeal_chakra_activity:
+                          type: object
+                          properties:
+                            base_value:
+                              type: string
+                            current_value:
+                              type: string
+                            difference:
+                              type: 'null'
+                          required:
+                            - base_value
+                            - current_value
+                            - difference
+                        laryngeal_chakra_affects_organ:
+                          type: object
+                          properties:
+                            base_value:
+                              type: string
+                            current_value:
+                              type: string
+                            difference:
+                              type: 'null'
+                          required:
+                            - base_value
+                            - current_value
+                            - difference
+                        cardiac_chakra_imbalance:
+                          type: object
+                          properties:
+                            base_value:
+                              type: string
+                            current_value:
+                              type: string
+                            difference:
+                              type: 'null'
+                          required:
+                            - base_value
+                            - current_value
+                            - difference
+                        cardiac_chakra_percentage:
+                          type: object
+                          properties:
+                            base_value:
+                              type: integer
+                            current_value:
+                              type: integer
+                            difference:
+                              type: integer
+                          required:
+                            - base_value
+                            - current_value
+                            - difference
+                        cardiac_chakra_activity:
+                          type: object
+                          properties:
+                            base_value:
+                              type: string
+                            current_value:
+                              type: string
+                            difference:
+                              type: 'null'
+                          required:
+                            - base_value
+                            - current_value
+                            - difference
+                        cardiac_chakra_affects_organ:
+                          type: object
+                          properties:
+                            base_value:
+                              type: string
+                            current_value:
+                              type: string
+                            difference:
+                              type: 'null'
+                          required:
+                            - base_value
+                            - current_value
+                            - difference
+                        solar_plexus_chakra_imbalance:
+                          type: object
+                          properties:
+                            base_value:
+                              type: string
+                            current_value:
+                              type: string
+                            difference:
+                              type: 'null'
+                          required:
+                            - base_value
+                            - current_value
+                            - difference
+                        solar_plexus_chakra_percentage:
+                          type: object
+                          properties:
+                            base_value:
+                              type: integer
+                            current_value:
+                              type: integer
+                            difference:
+                              type: integer
+                          required:
+                            - base_value
+                            - current_value
+                            - difference
+                        solar_plexus_chakra_activity:
+                          type: object
+                          properties:
+                            base_value:
+                              type: string
+                            current_value:
+                              type: string
+                            difference:
+                              type: 'null'
+                          required:
+                            - base_value
+                            - current_value
+                            - difference
+                        solar_plexus_chakra_affects_organ:
+                          type: object
+                          properties:
+                            base_value:
+                              type: string
+                            current_value:
+                              type: string
+                            difference:
+                              type: 'null'
+                          required:
+                            - base_value
+                            - current_value
+                            - difference
+                        sacral_chakra_imbalance:
+                          type: object
+                          properties:
+                            base_value:
+                              type: string
+                            current_value:
+                              type: string
+                            difference:
+                              type: 'null'
+                          required:
+                            - base_value
+                            - current_value
+                            - difference
+                        sacral_chakra_percentage:
+                          type: object
+                          properties:
+                            base_value:
+                              type: integer
+                            current_value:
+                              type: integer
+                            difference:
+                              type: integer
+                          required:
+                            - base_value
+                            - current_value
+                            - difference
+                        sacral_chakra_activity:
+                          type: object
+                          properties:
+                            base_value:
+                              type: string
+                            current_value:
+                              type: string
+                            difference:
+                              type: 'null'
+                          required:
+                            - base_value
+                            - current_value
+                            - difference
+                        sacral_chakra_affects_organ:
+                          type: object
+                          properties:
+                            base_value:
+                              type: string
+                            current_value:
+                              type: string
+                            difference:
+                              type: 'null'
+                          required:
+                            - base_value
+                            - current_value
+                            - difference
+                        base_chakra_imbalance:
+                          type: object
+                          properties:
+                            base_value:
+                              type: string
+                            current_value:
+                              type: string
+                            difference:
+                              type: 'null'
+                          required:
+                            - base_value
+                            - current_value
+                            - difference
+                        base_chakra_percentage:
+                          type: object
+                          properties:
+                            base_value:
+                              type: integer
+                            current_value:
+                              type: integer
+                            difference:
+                              type: integer
+                          required:
+                            - base_value
+                            - current_value
+                            - difference
+                        base_chakra_activity:
+                          type: object
+                          properties:
+                            base_value:
+                              type: string
+                            current_value:
+                              type: string
+                            difference:
+                              type: 'null'
+                          required:
+                            - base_value
+                            - current_value
+                            - difference
+                        base_chakra_affects_organ:
+                          type: object
+                          properties:
+                            base_value:
+                              type: string
+                            current_value:
+                              type: string
+                            difference:
+                              type: 'null'
+                          required:
+                            - base_value
+                            - current_value
+                            - difference
+                        aura_size:
+                          type: object
+                          properties:
+                            base_value:
+                              type: integer
+                            current_value:
+                              type: integer
+                            difference:
+                              type: integer
+                          required:
+                            - base_value
+                            - current_value
+                            - difference
+                        aura_size_comments:
+                          type: object
+                          properties:
+                            base_value:
+                              type: string
+                            current_value:
+                              type: string
+                            difference:
+                              type: 'null'
+                          required:
+                            - base_value
+                            - current_value
+                            - difference
+                        opening_size:
+                          type: object
+                          properties:
+                            base_value:
+                              type: integer
+                            current_value:
+                              type: integer
+                            difference:
+                              type: integer
+                          required:
+                            - base_value
+                            - current_value
+                            - difference
+                        opening_size_comments:
+                          type: object
+                          properties:
+                            base_value:
+                              type: string
+                            current_value:
+                              type: string
+                            difference:
+                              type: 'null'
+                          required:
+                            - base_value
+                            - current_value
+                            - difference
+                        color_lack:
+                          type: object
+                          properties:
+                            base_value:
+                              type: string
+                            current_value:
+                              type: string
+                            difference:
+                              type: 'null'
+                          required:
+                            - base_value
+                            - current_value
+                            - difference
+                        color_excess:
+                          type: object
+                          properties:
+                            base_value:
+                              type: string
+                            current_value:
+                              type: string
+                            difference:
+                              type: 'null'
+                          required:
+                            - base_value
+                            - current_value
+                            - difference
+                        energy_comments:
+                          type: object
+                          properties:
+                            base_value:
+                              type: string
+                            current_value:
+                              type: string
+                            difference:
+                              type: 'null'
+                          required:
+                            - base_value
+                            - current_value
+                            - difference
+                        family_area:
+                          type: object
+                          properties:
+                            base_value:
+                              type: integer
+                            current_value:
+                              type: integer
+                            difference:
+                              type: integer
+                          required:
+                            - base_value
+                            - current_value
+                            - difference
+                        affective_area:
+                          type: object
+                          properties:
+                            base_value:
+                              type: integer
+                            current_value:
+                              type: integer
+                            difference:
+                              type: integer
+                          required:
+                            - base_value
+                            - current_value
+                            - difference
+                        professional_area:
+                          type: object
+                          properties:
+                            base_value:
+                              type: integer
+                            current_value:
+                              type: integer
+                            difference:
+                              type: integer
+                          required:
+                            - base_value
+                            - current_value
+                            - difference
+                        financial_area:
+                          type: object
+                          properties:
+                            base_value:
+                              type: integer
+                            current_value:
+                              type: integer
+                            difference:
+                              type: integer
+                          required:
+                            - base_value
+                            - current_value
+                            - difference
+                        mission_area:
+                          type: object
+                          properties:
+                            base_value:
+                              type: integer
+                            current_value:
+                              type: integer
+                            difference:
+                              type: integer
+                          required:
+                            - base_value
+                            - current_value
+                            - difference
+                        created_at:
+                          type: object
+                          properties:
+                            base_value:
+                              type: string
+                            current_value:
+                              type: string
+                            difference:
+                              type: 'null'
+                          required:
+                            - base_value
+                            - current_value
+                            - difference
+                      required:
+                        - mental_imbalance
+                        - mental_percentage
+                        - emotional_imbalance
+                        - emotional_percentage
+                        - spiritual_imbalance
+                        - spiritual_percentage
+                        - physical_imbalance
+                        - physical_percentage
+                        - coronary_chakra_imbalance
+                        - coronary_chakra_percentage
+                        - coronary_chakra_activity
+                        - coronary_chakra_affects_organ
+                        - frontal_chakra_imbalance
+                        - frontal_chakra_percentage
+                        - frontal_chakra_activity
+                        - frontal_chakra_affects_organ
+                        - laryngeal_chakra_imbalance
+                        - laryngeal_chakra_percentage
+                        - laryngeal_chakra_activity
+                        - laryngeal_chakra_affects_organ
+                        - cardiac_chakra_imbalance
+                        - cardiac_chakra_percentage
+                        - cardiac_chakra_activity
+                        - cardiac_chakra_affects_organ
+                        - solar_plexus_chakra_imbalance
+                        - solar_plexus_chakra_percentage
+                        - solar_plexus_chakra_activity
+                        - solar_plexus_chakra_affects_organ
+                        - sacral_chakra_imbalance
+                        - sacral_chakra_percentage
+                        - sacral_chakra_activity
+                        - sacral_chakra_affects_organ
+                        - base_chakra_imbalance
+                        - base_chakra_percentage
+                        - base_chakra_activity
+                        - base_chakra_affects_organ
+                        - aura_size
+                        - aura_size_comments
+                        - opening_size
+                        - opening_size_comments
+                        - color_lack
+                        - color_excess
+                        - energy_comments
+                        - family_area
+                        - affective_area
+                        - professional_area
+                        - financial_area
+                        - mission_area
+                        - created_at
+                    base_id:
+                      type: string
+            required:
+              - comparisons
+      security:
+        - bearer: []
+      produces:
+        - application/json
+  /api/v1/tasks:
+    post:
+      summary: Create
+      deprecated: false
+      description: ''
+      tags:
+        - Tasks
+      parameters:
+        - name: body
+          in: body
+          schema:
+            type: object
+            properties:
+              title:
+                type: string
+              description:
+                type: string
+              status:
+                type: string
+              datetime:
+                type: string
+            required:
+              - title
+              - description
+              - status
+              - datetime
+      responses:
+        '200':
+          description: ''
+          headers: {}
+          schema:
+            type: object
+            properties: {}
+      security:
+        - bearer: []
+      consumes:
+        - application/json
+      produces:
+        - application/json
+    get:
+      summary: Search
+      deprecated: false
+      description: ''
+      tags:
+        - Tasks
+      parameters:
+        - name: s
+          in: query
+          description: Data, titulo, descrição
+          required: true
+          type: string
+          x-example: ''
+        - name: status
+          in: query
+          description: pending, completed
+          required: true
+          type: string
+          x-example: ''
+        - name: order
+          in: query
+          description: asc ou desc
+          required: true
+          type: string
+          x-example: ''
+        - name: sort_by
+          in: query
+          description: id, order, title
+          required: true
+          type: string
+          x-example: ''
+        - name: page
+          in: query
+          description: int
+          required: true
+          type: string
+          x-example: ''
+        - name: limite
+          in: query
+          description: '500'
+          required: true
+          type: string
+          x-example: ''
+      responses:
+        '200':
+          description: ''
+          headers: {}
+          schema:
+            type: object
+            properties: {}
+      security:
+        - bearer: []
+      produces:
+        - application/json
+  /api/v1/tasks/6:
+    put:
+      summary: Update
+      deprecated: false
+      description: ''
+      tags:
+        - Tasks
+      parameters:
+        - name: body
+          in: body
+          schema:
+            type: object
+            properties:
+              title:
+                type: string
+              description:
+                type: string
+              status:
+                type: string
+            required:
+              - title
+              - description
+              - status
+      responses:
+        '200':
+          description: ''
+          headers: {}
+          schema:
+            type: object
+            properties: {}
+      security:
+        - bearer: []
+      consumes:
+        - application/json
+      produces:
+        - application/json
+  /api/v1/tasks/order:
+    put:
+      summary: Order tasks
+      deprecated: false
+      description: ''
+      tags:
+        - Tasks
+      parameters:
+        - name: body
+          in: body
+          schema:
+            type: array
+            items:
+              type: object
+              properties:
+                id:
+                  type: integer
+                order:
+                  type: string
+              required:
+                - id
+                - order
+      responses:
+        '200':
+          description: ''
+          headers: {}
+          schema:
+            type: object
+            properties: {}
+      security:
+        - bearer: []
+      consumes:
+        - application/json
+      produces:
+        - application/json
+  /api/v1/tasks/2:
+    delete:
+      summary: Delete
+      deprecated: false
+      description: ''
+      tags:
+        - Tasks
+      parameters:
+        - name: body
+          in: body
+          schema:
+            type: object
+            properties: {}
+      responses:
+        '200':
+          description: ''
+          headers: {}
+          schema:
+            type: object
+            properties: {}
+      security:
+        - bearer: []
+      consumes:
+        - application/json
+      produces:
+        - application/json
+  /api/v1/tasks/1:
+    get:
+      summary: Get ID
+      deprecated: false
+      description: ''
+      tags:
+        - Tasks
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          headers: {}
+          schema:
+            type: object
+            properties: {}
+      security:
+        - bearer: []
+      produces:
+        - application/json
+  /api/v1/webhook/greem:
+    post:
+      summary: Create account with greem
+      deprecated: false
+      description: ''
+      tags:
+        - Webhook
+      parameters:
+        - name: body
+          in: body
+          schema:
+            type: object
+            properties:
+              currentStatus:
+                type: string
+              client:
+                type: object
+                properties:
+                  email:
+                    type: string
+                  name:
+                    type: string
+                  cellphone:
+                    type: string
+                required:
+                  - email
+                  - name
+                  - cellphone
+              product:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  name:
+                    type: string
+                required:
+                  - id
+                  - name
+            required:
+              - currentStatus
+              - client
+              - product
+      responses:
+        '200':
+          description: ''
+          headers: {}
+          schema:
+            type: object
+            properties: {}
+      security: []
+      consumes:
+        - application/json
+      produces:
+        - application/json
+  /api/v1/users:
+    post:
+      summary: Create
+      deprecated: false
+      description: ''
+      tags:
+        - Plans
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          headers: {}
+          schema:
+            type: object
+            properties: {}
+      security:
+        - bearer: []
+      produces:
+        - application/json
+  /api/v1/plans/1:
+    put:
+      summary: Update
+      deprecated: false
+      description: ''
+      tags:
+        - Plans
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          headers: {}
+          schema:
+            type: object
+            properties: {}
+      security:
+        - bearer: []
+      produces:
+        - application/json
+    delete:
+      summary: Delete
+      deprecated: false
+      description: ''
+      tags:
+        - Plans
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          headers: {}
+          schema:
+            type: object
+            properties: {}
+      security:
+        - bearer: []
+      produces:
+        - application/json
+    get:
+      summary: Get ID
+      deprecated: false
+      description: ''
+      tags:
+        - Plans
+      parameters:
+        - name: body
+          in: body
+          schema:
+            type: object
+            properties: {}
+      responses:
+        '200':
+          description: ''
+          headers: {}
+          schema:
+            type: object
+            properties: {}
+      security:
+        - bearer: []
+      consumes:
+        - application/json
+      produces:
+        - application/json
+  /api/v1/plans:
+    get:
+      summary: Search
+      deprecated: false
+      description: ''
+      tags:
+        - Plans
+      parameters:
+        - name: body
+          in: body
+          schema:
+            type: object
+            properties: {}
+      responses:
+        '200':
+          description: ''
+          headers: {}
+          schema:
+            type: object
+            properties: {}
+      security:
+        - bearer: []
+      consumes:
+        - application/json
+      produces:
+        - application/json
+  /api/v1/subscriptions:
+    post:
+      summary: Create
+      deprecated: false
+      description: ''
+      tags:
+        - Subscriptions
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          headers: {}
+          schema:
+            type: object
+            properties: {}
+      security:
+        - bearer: []
+      produces:
+        - application/json
+  /api/v1/subscriptions/id:
+    put:
+      summary: Update
+      deprecated: false
+      description: ''
+      tags:
+        - Subscriptions
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          headers: {}
+          schema:
+            type: object
+            properties: {}
+      security:
+        - bearer: []
+      produces:
+        - application/json
+    delete:
+      summary: Delete
+      deprecated: false
+      description: ''
+      tags:
+        - Subscriptions
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          headers: {}
+          schema:
+            type: object
+            properties: {}
+      security:
+        - bearer: []
+      produces:
+        - application/json
+    get:
+      summary: list by id
+      deprecated: false
+      description: ''
+      tags:
+        - Subscriptions
+      parameters:
+        - name: body
+          in: body
+          schema:
+            type: object
+            properties: {}
+      responses:
+        '200':
+          description: ''
+          headers: {}
+          schema:
+            type: object
+            properties: {}
+      security:
+        - bearer: []
+      consumes:
+        - application/json
+      produces:
+        - application/json
+  /api/v1/subscriptions/:
+    get:
+      summary: Search
+      deprecated: false
+      description: ''
+      tags:
+        - Subscriptions
+      parameters:
+        - name: s
+          in: query
+          description: ''
+          required: true
+          type: string
+          x-example: search
+        - name: order
+          in: query
+          description: ASC or DESC
+          required: true
+          type: string
+          x-example: ASC
+        - name: limite
+          in: query
+          description: 1 min / 500 Max
+          required: true
+          type: string
+          x-example: '10'
+        - name: page
+          in: query
+          description: Paginate return system
+          required: true
+          type: string
+          x-example: '1'
+        - name: body
+          in: body
+          schema:
+            type: object
+            properties: {}
+      responses:
+        '200':
+          description: ''
+          headers: {}
+          schema:
+            type: object
+            properties: {}
+      security:
+        - bearer: []
+      consumes:
+        - application/json
+      produces:
+        - application/json
+  /api/v1/config:
+    put:
+      summary: Config system
+      deprecated: false
+      description: ''
+      tags:
+        - System
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          headers: {}
+          schema:
+            type: object
+            properties: {}
+      security: []
+      produces:
+        - application/json
+  /api/v1/support:
+    post:
+      summary: Respond Support
+      deprecated: false
+      description: ''
+      tags:
+        - Support
+      parameters:
+        - name: body
+          in: body
+          schema:
+            type: object
+            properties:
+              idSupport:
+                type: string
+              message:
+                type: string
+            required:
+              - idSupport
+              - message
+      responses:
+        '200':
+          description: ''
+          headers: {}
+          schema:
+            type: object
+            properties: {}
+      security:
+        - bearer: []
+      consumes:
+        - application/json
+      produces:
+        - application/json
+    get:
+      summary: Search
+      deprecated: false
+      description: ''
+      tags:
+        - Support
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          headers: {}
+          schema:
+            type: object
+            properties: {}
+      security:
+        - bearer: []
+      produces:
+        - application/json
+  /api/v1/crisp/first-chat:
+    post:
+      summary: Webhook Crisp First Chat
+      deprecated: false
+      description: ''
+      tags:
+        - Support
+      parameters:
+        - name: body
+          in: body
+          schema:
+            type: object
+            properties:
+              nickname:
+                type: string
+              session_id:
+                type: string
+              phone:
+                type: string
+              email:
+                type: string
+            required:
+              - nickname
+              - session_id
+              - phone
+              - email
+      responses:
+        '200':
+          description: ''
+          headers: {}
+          schema:
+            type: object
+            properties: {}
+      security: []
+      consumes:
+        - application/json
+      produces:
+        - application/json
+swagger: '2.0'
+definitions: {}
+securityDefinitions:
+  bearer:
+    type: apiKey
+    name: Authorization
+    in: header
+x-components: {}
