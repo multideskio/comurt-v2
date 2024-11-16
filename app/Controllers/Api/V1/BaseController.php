@@ -10,21 +10,21 @@ use OpenApi\Attributes as OA;
 
 #[OA\OpenApi(
     info: new OA\Info(
-        version: "1.0.0",
-        description: "`API para demonstrar endpoints básicos do sistema`<br><ul><li>Essa documentação está sendo desenvolvida gradualmente, todos os endpoints estão passando por uma revisão.</li><li>Os endpoints que precisam estar com a autorização estão com um cadeado indicando o uso.</li><li>Para gerar o token, utilize o endpoint login.</li><li>Endpoints marcados como acesso ADMIN.</li></ul>",
-        title: "Therapeutic Radiesthesia API",
-        contact: new OA\Contact(
-            name: 'Paulo Henrique',
-            url: "https://api.conect.app",
-            email: "webmaster@multidesk.io"
+        version: "v2",
+        description: "",
+        title: "COMURT",
+        /*contact: new OA\Contact(
+            name: "",
+            url: "",
+            email: ""
         ),
-        /*license: new OA\License(
+        license: new OA\License(
             name: 'API EM DESENVOLVIMENTO'
         )*/
     ),
     servers: [
         new OA\Server(
-            url: "https://api.multidesk.io",
+            url: "https://comurt-api-v2-dev.bzoyky.easypanel.host",
             description: "Servidor online"
         ),
         new OA\Server(
@@ -42,7 +42,7 @@ use OpenApi\Attributes as OA;
         new OA\Tag(name: "Anamneses", description: "Gerenciamento de Anamneses"),
         new OA\Tag(name: "Suporte", description: "Gerenciamento de suporte"),
         new OA\Tag(name: "Webhooks", description: "Gerenciamento de Webhooks"),
-        
+
         // Outras tags podem ser adicionadas aqui
     ]
 )]
