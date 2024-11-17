@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Helpers;
+namespace App\Libraries;
 
-use Aws\S3\S3Client;
 use Aws\Exception\AwsException;
+use Aws\S3\S3Client;
 
-class BucketSave
+class BucketLibrary
 {
     protected $s3;
 
@@ -28,20 +28,15 @@ class BucketSave
     {
         try {
             $this->s3->headBucket(['Bucket' => $bucket]);
-            echo "Bucket '{$bucket}' already exists.\n";
         } catch (AwsException $e) {
             if ($e->getAwsErrorCode() === 'NotFound' || $e->getAwsErrorCode() === 'NoSuchBucket') {
                 try {
-                    echo "Bucket '{$bucket}' does not exist. Creating...\n";
                     $this->s3->createBucket(['Bucket' => $bucket]);
                     $this->s3->waitUntil('BucketExists', ['Bucket' => $bucket]);
-                    echo "Bucket '{$bucket}' created successfully.\n";
                 } catch (AwsException $createException) {
-                    echo "Error creating bucket: " . $createException->getMessage() . "\n";
                     throw $createException;
                 }
             } else {
-                echo "Error checking bucket: " . $e->getMessage() . "\n";
                 throw $e;
             }
         }
@@ -59,10 +54,8 @@ class BucketSave
                 'Key'    => $key,
                 'Body'   => $body
             ]);
-            echo "Object uploaded successfully to '{$bucket}/{$key}'.\n";
             return $result;
         } catch (AwsException $e) {
-            echo "Error: " . $e->getMessage() . "\n";
             return null;
         }
     }
@@ -75,10 +68,8 @@ class BucketSave
                 'Key'    => $key,
                 'SaveAs' => $saveAs
             ]);
-            echo "Object downloaded successfully: " . $result['Body'] . "\n";
             return $result['Body'];
         } catch (AwsException $e) {
-            echo "Error: " . $e->getMessage() . "\n";
             return null;
         }
     }

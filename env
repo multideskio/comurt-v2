@@ -38,6 +38,22 @@
 # database.default.DBPrefix =
 # database.default.port = 3306
 
+#S3_VERSION=latest
+#S3_REGION=us-east-1
+#S3_ENDPOINT=http://localhost:9000
+#S3_USE_PATH_STYLE_ENDPOINT=true
+#S3_KEY=minio_user
+#S3_SECRET=minio_password
+
+#SMTP_HOST=
+#SMTP_USER=
+#SMTP_PASS=
+#SMTP_PORT=
+#SMTP_CRYPTO=
+#SMTP_ACTIVE=
+#SENDER_EMAIL=
+#SENDER_NAME=
+
 # If you use MySQLi as tests, first update the values of Config\Database::$tests.
 # database.tests.hostname = localhost
 # database.tests.database = ci4_test
