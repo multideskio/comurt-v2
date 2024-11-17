@@ -73,4 +73,27 @@ class BucketLibrary
             return null;
         }
     }
+
+    public function saveFile($bucket, $filePath, $key)
+    {
+        try {
+            $fileContent = file_get_contents($filePath);
+            return $this->uploadObject($bucket, $key, $fileContent);
+        } catch (\Exception $e) {
+            return null;
+        }
+    }
+
+    public function getFile($bucket, $key)
+    {
+        try {
+            $result = $this->s3->getObject([
+                'Bucket' => $bucket,
+                'Key'    => $key
+            ]);
+            return $result['Body'];
+        } catch (AwsException $e) {
+            return null;
+        }
+    }
 }

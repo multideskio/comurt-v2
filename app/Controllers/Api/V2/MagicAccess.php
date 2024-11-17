@@ -43,7 +43,7 @@ class MagicAccess extends BaseController
         return $this->respond(['message' => 'Magic link created successfully']);
     }
 
-    public function checkMagicLink($hash)
+    public function checkMagicLink($hash): \CodeIgniter\HTTP\ResponseInterface
     {
         $magicLinkModel = new VerifyMagicLink();
         $isValid = $magicLinkModel->verifyMagicLink($hash);
@@ -51,16 +51,15 @@ class MagicAccess extends BaseController
         if (!$isValid) {
             return $this->fail('Link expired or doesnt exist or already used', 400);
         }
-
+        /*
+         * removendo logica de seguranca
         $wasKill = $magicLinkModel->setUsed($hash);
 
         if(!$wasKill){
             return $this->fail('Failed to kill magic link', 400);
         }
-
+        */
 
         return $this->respond(['message' => 'Magic link is valid']);
-
-
     }
 }

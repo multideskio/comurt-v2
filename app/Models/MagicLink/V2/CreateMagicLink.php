@@ -21,7 +21,7 @@ class CreateMagicLink extends MagicLinkModel
 
         $id = $this->insert($data);
 
-        log_message('info', "Inserted id: {$id}");
+        log_message('info', "Inserted Magic link id: {$id}");
 
         return true;
     }
