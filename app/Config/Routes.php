@@ -100,3 +100,8 @@ $routes->group('api/v1', function ($routes) {
     //
     $routes->post('crisp/first-chat', 'Api\V1\SupportController::webhookCrispFirstChat');
 });
+
+$routes->group('api/v2', function ($routes) {
+    $routes->post('create/magic/link', 'Api\V2\MagicAccess::create');
+    $routes->get('check/magic/link/(:any)', 'Api\V2\MagicAccess::checkMagicLink/$1');
+});
