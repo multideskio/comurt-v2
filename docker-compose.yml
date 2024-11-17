@@ -28,5 +28,15 @@ services:
       MINIO_CONSOLE_ADDRESS: ':9001'
     command: minio server /data
 
+  redis:
+    image: redis:6.2
+    container_name: redis_cache
+    ports:
+      - "6379:6379"
+    command: redis-server
+    volumes:
+      - redis_data:/data
+
 volumes:
   db_data:
+  redis_data:

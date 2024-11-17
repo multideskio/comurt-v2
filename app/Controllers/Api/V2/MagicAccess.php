@@ -8,7 +8,7 @@ use App\Models\MagicLink\V2\VerifyMagicLink;
 use CodeIgniter\API\ResponseTrait;
 use CodeIgniter\Exceptions\PageNotFoundException;
 use App\Models\MagicLink\V2\CreateMagicLink;
-
+//TODO: criar template e enviar link completo para acesso ao sistema
 class MagicAccess extends BaseController
 {
     use ResponseTrait;

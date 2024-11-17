@@ -104,6 +104,9 @@ $routes->group('api/v1', function ($routes) {
 $routes->group('api/v2', function ($routes) {
     $routes->post('create/magic/link', 'Api\V2\MagicAccess::create');
     $routes->get('check/magic/link/(:any)', 'Api\V2\MagicAccess::checkMagicLink/$1');
+
     $routes->post('create/customer/user/(:any)', 'Api\V2\CustomerUser::create/$1');
     $routes->get('customer/user/(:any)', 'Api\V2\CustomerUser::get/$1');
-});
+
+    $routes->post('chat/user/(:any)', 'Api\V2\Chat::chatUser/$1');
+    $routes->post('chat/professional', 'Api\V2\Chat::chatProfessional', ['filter' => 'jwt:PROFISSIONAL']);});
