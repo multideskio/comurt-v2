@@ -21,6 +21,20 @@ class VerifyMagicLink extends MagicLinkModel
         $interval = $currentTime->diff($expirationTime);
         $minutes = ($interval->days * 24 * 60) + ($interval->h * 60) + $interval->i;
 
-        return $minutes <= 30;
+        return $minutes <= 30 && $magicLink['used'] == 0;
     }
+
+    public function setUsed(string $hash): bool
+    {
+        $magicLink = $this->where('link_url', $hash)->first();
+
+        if (!$magicLink) {
+            return false;
+        }
+
+        $this->update($magicLink['id'], ['used' => 1]);
+        return true;
+    }
+
+
 }

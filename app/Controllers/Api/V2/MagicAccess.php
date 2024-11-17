@@ -49,8 +49,15 @@ class MagicAccess extends BaseController
         $isValid = $magicLinkModel->verifyMagicLink($hash);
 
         if (!$isValid) {
-            return $this->fail('Link expired or doesnt exist', 400);
+            return $this->fail('Link expired or doesnt exist or already used', 400);
         }
+
+        $wasKill = $magicLinkModel->setUsed($hash);
+
+        if(!$wasKill){
+            return $this->fail('Failed to kill magic link', 400);
+        }
+
 
         return $this->respond(['message' => 'Magic link is valid']);
 
