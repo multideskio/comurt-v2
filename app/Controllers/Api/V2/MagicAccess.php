@@ -7,11 +7,13 @@ use App\Libraries\EmailsLibraries;
 use App\Models\MagicLink\V2\VerifyMagicLink;
 use CodeIgniter\API\ResponseTrait;
 use CodeIgniter\Exceptions\PageNotFoundException;
+use App\Models\PlatformModel;
 use App\Models\MagicLink\V2\CreateMagicLink;
 //TODO: criar template e enviar link completo para acesso ao sistema
 class MagicAccess extends BaseController
 {
     use ResponseTrait;
+
 
     public function create(): \CodeIgniter\HTTP\ResponseInterface
     {
@@ -22,7 +24,17 @@ class MagicAccess extends BaseController
             $magicLink = generateMagicLink($email);
             $emailSender =  new EmailsLibraries();
 
-            $resultSendEmail = $emailSender->send($email, "acesso", "Clique no link para acessar: {$magicLink}");
+            $modelPlatform = new PlatformModel();
+            $dataPlatform = $modelPlatform->first();
+
+            $configDataEmail = [
+                'email' => $email,
+                'baseUrl' => $dataPlatform['urlBase'],
+                'magicLink' => $magicLink,
+                'company' =>  $dataPlatform['company'],
+            ];
+
+            $resultSendEmail = $emailSender->send($email, 'Link de acesso', view('emails/magic-link', $configDataEmail));
 
             if(!$resultSendEmail){
                 return $this->fail('Failed to send email', 500);
