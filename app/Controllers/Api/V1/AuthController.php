@@ -2,15 +2,16 @@
 
 namespace App\Controllers\Api\V1;
 
+use App\Config\JwtConfig;
+use App\Libraries\EmailsLibraries;
+use App\Models\BlacklistModel;
+use App\Models\Users\V1\RecoverUsers;
 use App\Models\UsersModel;
+use CodeIgniter\API\ResponseTrait;
+use CodeIgniter\Exceptions\PageNotFoundException;
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
-use App\Config\JwtConfig;
-use App\Models\BlacklistModel;
-use CodeIgniter\API\ResponseTrait;
 use OpenApi\Attributes as OA;
-use CodeIgniter\Exceptions\PageNotFoundException;
-use App\Models\Users\V1\RecoverUsers;
 
 class AuthController extends BaseController
 {

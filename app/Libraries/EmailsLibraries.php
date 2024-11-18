@@ -2,16 +2,13 @@
 declare(strict_types=1);
 namespace App\Libraries;
 
-use App\Models\PlatformModel;
 use CodeIgniter\Config\Services;
 use Exception;
 
 class EmailsLibraries
 {
-    protected $envio;
     protected $remetente;
     protected $nomeRemetente;
-    protected $modelConfig;
     protected $email;
     protected $config;
 
@@ -19,45 +16,23 @@ class EmailsLibraries
     {
         $this->email = Services::email();
 
-        $data = $this->data();
-
-        if ($data['ativar_smtp']) {
-            $this->initializeSMTP($data);
+        if (filter_var(getenv('SMTP_ACTIVE'), FILTER_VALIDATE_BOOLEAN)) {
+            $this->remetente = getenv('SENDER_EMAIL');
+            $this->nomeRemetente = getenv('SENDER_NAME');
+            $this->initializeSMTP();
         }
-
-        $this->remetente     = $data['e-remetente'];
-        $this->nomeRemetente = $data['n-remetente'];
 
         log_message('info', '[LINE ' . __LINE__ . '] [EmailsLibraries::__construct] EmailsLibraries initialized successfully.');
     }
 
-    protected function data(): array
-    {
-        $modelAdmin = new PlatformModel();
-        $data = $modelAdmin->find(1);
-
-        log_message('info', '[LINE ' . __LINE__ . '] [EmailsLibraries::data] Data retrieved from PlatformModel.');
-
-        return [
-            'SMTPHost'    => $data['smtpHost'],
-            'SMTPUser'    => $data['smtpUser'],
-            'SMTPPass'    => $data['smtpPass'],
-            'SMTPPort'    => intval($data['smtpPort']),
-            'SMTPCrypto'  => $data['smtpCrypto'],
-            'e-remetente' => $data['senderEmail'],
-            'n-remetente' => $data['senderName'],
-            'ativar_smtp' => $data['activeSmtp']
-        ];
-    }
-
-    protected function initializeSMTP(array $data)
+    protected function initializeSMTP()
     {
         $config['protocol']   = 'smtp';
-        $config['SMTPHost']   = $data['SMTPHost'];
-        $config['SMTPUser']   = $data['SMTPUser'];
-        $config['SMTPPass']   = $data['SMTPPass'];
-        $config['SMTPPort']   = $data['SMTPPort'];
-        $config['SMTPCrypto'] = $data['SMTPCrypto'];
+        $config['SMTPHost']   = getenv('SMTP_HOST');
+        $config['SMTPUser']   = getenv('SMTP_USER');
+        $config['SMTPPass']   = getenv('SMTP_PASS');
+        $config['SMTPPort']   = (int) getenv('SMTP_PORT');
+        $config['SMTPCrypto'] = getenv('SMTP_CRYPTO');
         $config['mailType']   = 'html';
         $this->email->initialize($config);
 
@@ -80,12 +55,10 @@ class EmailsLibraries
             } else {
                 $error = $this->email->printDebugger(['headers']);
                 log_message('error', '[LINE ' . __LINE__ . '] [EmailsLibraries::send] Email sending failed: ' . $error);
-                // Continua o processamento sem interromper
                 return false;
             }
         } catch (Exception $e) {
             log_message('error', '[LINE ' . __LINE__ . '] [EmailsLibraries::send] ' . $e->getMessage());
-            // Continua o processamento sem lançar exceção
             return false;
         }
     }
